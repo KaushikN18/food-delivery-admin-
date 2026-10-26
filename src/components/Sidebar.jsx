@@ -27,23 +27,19 @@ const menuItems = [
 function Sidebar({ isOpen, setIsOpen }) {
   return (
     <>
-      {/* Mobile overlay */}
+      {/* Mobile Overlay */}
       <button
+        type="button"
         aria-label="Close sidebar overlay"
         onClick={() => setIsOpen(false)}
         className={`fixed inset-0 z-40 bg-black/50 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
-          isOpen
-            ? "visible opacity-100"
-            : "invisible opacity-0"
+          isOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
       />
 
+      {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[260px]
-        flex-col border-r border-gray-200 bg-white text-gray-800
-        shadow-xl transition-transform duration-300 ease-in-out
-        dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100
-        lg:translate-x-0 lg:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-dvh w-[260px] flex-col overflow-hidden border-r border-gray-200 bg-white text-gray-800 shadow-xl transition-transform duration-300 ease-in-out dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100 lg:translate-x-0 lg:shadow-none ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -58,6 +54,7 @@ function Sidebar({ isOpen, setIsOpen }) {
               <h1 className="text-lg font-extrabold tracking-tight text-gray-900 dark:text-white">
                 Foodie<span className="text-orange-500">Admin</span>
               </h1>
+
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Management Panel
               </p>
@@ -65,6 +62,7 @@ function Sidebar({ isOpen, setIsOpen }) {
           </div>
 
           <button
+            type="button"
             onClick={() => setIsOpen(false)}
             aria-label="Close sidebar"
             className="rounded-lg p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-orange-500 dark:text-gray-400 dark:hover:bg-gray-800 lg:hidden"
@@ -74,7 +72,7 @@ function Sidebar({ isOpen, setIsOpen }) {
         </div>
 
         {/* Navigation */}
-        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-4 py-6">
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-4 py-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <p className="mb-4 px-3 text-xs font-bold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
             Main Menu
           </p>
@@ -120,27 +118,9 @@ function Sidebar({ isOpen, setIsOpen }) {
           </nav>
         </div>
 
-        {/* Support */}
-        <div className="shrink-0 border-t border-gray-100 p-4 dark:border-gray-700">
-          <div className="rounded-xl border border-orange-100 bg-orange-50 p-4 transition-colors duration-300 dark:border-orange-900/40 dark:bg-gray-800">
-            <p className="text-sm font-bold text-gray-800 dark:text-white">
-              Need assistance?
-            </p>
-
-            <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
-              Contact the support team for help.
-            </p>
-
-            <NavLink
-              to="/support"
-              onClick={() => setIsOpen(false)}
-              className="mt-3 inline-flex items-center gap-1 text-sm font-bold text-orange-600 transition-all hover:gap-2 dark:text-orange-400"
-            >
-              Get Support <span>→</span>
-            </NavLink>
-          </div>
-
-          <p className="mt-4 text-center text-[11px] text-gray-400 dark:text-gray-500">
+        {/* Footer - Support Card Removed */}
+        <div className="shrink-0 border-t border-gray-100 px-4 py-4 dark:border-gray-700">
+          <p className="text-center text-[11px] text-gray-400 dark:text-gray-500">
             FoodieAdmin © 2026
           </p>
         </div>
