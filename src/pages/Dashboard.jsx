@@ -183,22 +183,22 @@ function getStatusClass(status) {
   const normalized = normalizeStatus(status);
 
   if (normalized === "delivered") {
-    return "bg-green-50 text-green-700";
+    return "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300";
   }
 
   if (normalized === "preparing") {
-    return "bg-blue-50 text-blue-700";
+    return "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300";
   }
 
   if (normalized === "delivery") {
-    return "bg-purple-50 text-purple-700";
+    return "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300";
   }
 
   if (normalized === "cancelled" || normalized === "refunded") {
-    return "bg-red-50 text-red-600";
+    return "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-300";
   }
 
-  return "bg-orange-50 text-orange-700";
+  return "bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300";
 }
 
 function Dashboard() {
@@ -270,8 +270,7 @@ function Dashboard() {
 
     return result.slice(0, 6);
   }, [orders, orderFilter]);
-
-  const stats = [
+    const stats = [
     {
       title: "Total Orders",
       value: orderStats.total.toLocaleString("en-IN"),
@@ -341,22 +340,25 @@ function Dashboard() {
     setOrders(getSavedOrders());
     setLastUpdated(new Date());
   };
-    return (
-    <div className="space-y-7">
+
+  return (
+    <div className="page-animate space-y-7">
       {/* Dashboard Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm text-gray-500">Overview / Dashboard</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Overview / Dashboard
+          </p>
 
-          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-gray-900 sm:text-3xl">
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white sm:text-3xl">
             Dashboard Overview
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Welcome back! Here's what's happening today.
           </p>
 
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
             Last refreshed: {lastUpdated.toLocaleTimeString("en-IN")}
           </p>
         </div>
@@ -364,7 +366,7 @@ function Dashboard() {
         <div className="flex flex-wrap gap-3">
           <button
             onClick={refreshDashboard}
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-gray-700 transition hover:bg-gray-50"
+            className="button-animate inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
           >
             <FiRefreshCw size={17} />
             Refresh
@@ -372,7 +374,7 @@ function Dashboard() {
 
           <button
             onClick={() => window.print()}
-            className="w-fit rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-100 transition hover:bg-orange-600"
+            className="button-animate w-fit rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-100 transition hover:bg-orange-600 dark:shadow-none"
           >
             Generate Report
           </button>
@@ -381,7 +383,7 @@ function Dashboard() {
 
       {/* Summary Cards */}
       <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((stat) => {
+        {stats.map((stat, index) => {
           const Icon = stat.icon;
           const ChangeIcon = stat.positive
             ? FiArrowUpRight
@@ -390,7 +392,8 @@ function Dashboard() {
           return (
             <div
               key={stat.title}
-              className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+              style={{ animationDelay: `${index * 90}ms` }}
+              className="card-animate hover-card rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
             >
               <div className="flex items-center justify-between">
                 <div
@@ -409,15 +412,15 @@ function Dashboard() {
                 </span>
               </div>
 
-              <p className="mt-5 text-sm font-medium text-gray-500">
+              <p className="mt-5 text-sm font-medium text-gray-500 dark:text-gray-400">
                 {stat.title}
               </p>
 
-              <h2 className="mt-1 text-2xl font-extrabold text-gray-900">
+              <h2 className="mt-1 text-2xl font-extrabold text-gray-900 dark:text-white">
                 {stat.value}
               </h2>
 
-              <p className="mt-2 text-xs text-gray-400">
+              <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
                 Based on saved demo orders
               </p>
             </div>
@@ -429,18 +432,18 @@ function Dashboard() {
       <section>
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-extrabold text-gray-900">
+            <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">
               Live Order Overview
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Counts calculated from your saved orders
             </p>
           </div>
 
           <Link
             to="/orders"
-            className="text-sm font-bold text-orange-600 hover:text-orange-700"
+            className="text-sm font-bold text-orange-600 transition hover:text-orange-700"
           >
             Manage orders →
           </Link>
@@ -478,13 +481,14 @@ function Dashboard() {
               icon: FiCheckCircle,
               color: "bg-green-100 text-green-600",
             },
-          ].map((item) => {
+          ].map((item, index) => {
             const Icon = item.icon;
 
             return (
               <div
                 key={item.label}
-                className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
+                style={{ animationDelay: `${index * 70}ms` }}
+                className="card-animate hover-card rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-5"
               >
                 <div className="flex items-center justify-between gap-2">
                   <div
@@ -493,12 +497,12 @@ function Dashboard() {
                     <Icon size={20} />
                   </div>
 
-                  <span className="text-2xl font-extrabold text-gray-900">
+                  <span className="text-2xl font-extrabold text-gray-900 dark:text-white">
                     {item.value}
                   </span>
                 </div>
 
-                <p className="mt-4 text-xs font-medium text-gray-500 sm:text-sm">
+                <p className="mt-4 text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-sm">
                   {item.label}
                 </p>
               </div>
@@ -510,43 +514,44 @@ function Dashboard() {
       {/* Quick Actions */}
       <section>
         <div className="mb-4">
-          <h2 className="text-lg font-extrabold text-gray-900">
+          <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">
             Quick Actions
           </h2>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Jump directly to important management pages.
           </p>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {quickActions.map((action) => {
+          {quickActions.map((action, index) => {
             const Icon = action.icon;
 
             return (
               <Link
                 key={action.path}
                 to={action.path}
-                className="group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
+                style={{ animationDelay: `${index * 80}ms` }}
+                className="card-animate hover-card group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
               >
                 <div
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${action.color}`}
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${action.color} transition-transform duration-200 group-hover:scale-110`}
                 >
                   <Icon size={22} />
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-bold text-gray-800">
+                  <h3 className="text-sm font-bold text-gray-800 dark:text-white">
                     {action.title}
                   </h3>
 
-                  <p className="mt-1 text-xs leading-5 text-gray-500">
+                  <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
                     {action.description}
                   </p>
                 </div>
 
                 <FiArrowUpRight
-                  className="shrink-0 text-gray-400 transition group-hover:text-orange-500"
+                  className="shrink-0 text-gray-400 transition duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-orange-500"
                   size={18}
                 />
               </Link>
@@ -556,19 +561,19 @@ function Dashboard() {
       </section>
             {/* Revenue Analytics and Peak Hours */}
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5 sm:p-6 xl:col-span-2">
+        <div className="hover-card min-w-0 rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6 xl:col-span-2">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                 Revenue Analytics
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Weekly sample revenue performance
               </p>
             </div>
 
-            <span className="rounded-lg bg-orange-50 px-3 py-2 text-xs font-bold text-orange-600">
+            <span className="rounded-lg bg-orange-50 px-3 py-2 text-xs font-bold text-orange-600 dark:bg-orange-900/30 dark:text-orange-300">
               This week
             </span>
           </div>
@@ -597,7 +602,11 @@ function Dashboard() {
                   </linearGradient>
                 </defs>
 
-                <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid
+                  stroke="#94a3b8"
+                  strokeOpacity={0.2}
+                  vertical={false}
+                />
 
                 <XAxis
                   dataKey="day"
@@ -614,6 +623,11 @@ function Dashboard() {
                 />
 
                 <Tooltip
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "1px solid #e2e8f0",
+                    backgroundColor: "var(--chart-tooltip-bg, #ffffff)",
+                  }}
                   formatter={(value) => [formatCurrency(value), "Revenue"]}
                 />
 
@@ -623,23 +637,31 @@ function Dashboard() {
                   stroke="#f97316"
                   strokeWidth={3}
                   fill="url(#revenueFill)"
+                  isAnimationActive={true}
+                  animationDuration={1200}
                 />
               </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="min-w-0 rounded-2xl border border-gray-100 bg-white p-5 sm:p-6">
-          <h2 className="text-lg font-bold text-gray-900">Peak Hours</h2>
+        <div className="hover-card min-w-0 rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            Peak Hours
+          </h2>
 
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Sample orders by time of day
           </p>
 
           <div className="mt-5 h-[280px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={peakHours}>
-                <CartesianGrid stroke="#f1f5f9" vertical={false} />
+                <CartesianGrid
+                  stroke="#94a3b8"
+                  strokeOpacity={0.2}
+                  vertical={false}
+                />
 
                 <XAxis
                   dataKey="time"
@@ -656,6 +678,8 @@ function Dashboard() {
                   dataKey="orders"
                   fill="#fb923c"
                   radius={[5, 5, 0, 0]}
+                  isAnimationActive={true}
+                  animationDuration={1000}
                 />
               </BarChart>
             </ResponsiveContainer>
@@ -664,21 +688,21 @@ function Dashboard() {
       </section>
 
       {/* Recent Orders */}
-      <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+      <section className="hover-card overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div className="flex flex-col justify-between gap-3 p-5 sm:flex-row sm:items-center sm:p-6">
           <div>
-            <h2 className="text-lg font-extrabold text-gray-900">
+            <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">
               Recent Orders
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Latest orders and their current statuses
             </p>
           </div>
 
           <Link
             to="/orders"
-            className="inline-flex items-center gap-2 text-sm font-bold text-orange-600 hover:text-orange-700"
+            className="inline-flex items-center gap-2 text-sm font-bold text-orange-600 transition hover:text-orange-700"
           >
             <FiEye size={17} />
             View all orders
@@ -697,10 +721,10 @@ function Dashboard() {
             <button
               key={filter.value}
               onClick={() => setOrderFilter(filter.value)}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold transition ${
+              className={`rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 ${
                 orderFilter === filter.value
-                  ? "bg-orange-500 text-white"
-                  : "bg-gray-100 text-gray-600 hover:bg-orange-50 hover:text-orange-600"
+                  ? "bg-orange-500 text-white shadow-md shadow-orange-500/20"
+                  : "bg-gray-100 text-gray-600 hover:bg-orange-50 hover:text-orange-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
               }`}
             >
               {filter.label}
@@ -710,9 +734,11 @@ function Dashboard() {
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[720px] text-left">
-            <thead className="bg-gray-50">
-              <tr className="text-xs uppercase tracking-wider text-gray-500">
-                <th className="px-5 py-4 font-semibold sm:px-6">Order ID</th>
+            <thead className="bg-gray-50 dark:bg-gray-700/50">
+              <tr className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-300">
+                <th className="px-5 py-4 font-semibold sm:px-6">
+                  Order ID
+                </th>
                 <th className="px-5 py-4 font-semibold">Customer</th>
                 <th className="px-5 py-4 font-semibold">Restaurant</th>
                 <th className="px-5 py-4 font-semibold">Amount</th>
@@ -721,30 +747,31 @@ function Dashboard() {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100">
-              {filteredOrders.map((order) => (
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {filteredOrders.map((order, index) => (
                 <tr
                   key={order.id}
-                  className="transition hover:bg-gray-50"
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  className="card-animate transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
                 >
                   <td className="px-5 py-4 sm:px-6">
                     <Link
                       to="/orders"
-                      className="text-sm font-bold text-orange-600 hover:text-orange-700"
+                      className="text-sm font-bold text-orange-600 transition hover:text-orange-700"
                     >
                       #{order.id}
                     </Link>
                   </td>
 
-                  <td className="px-5 py-4 text-sm font-medium text-gray-800">
+                  <td className="px-5 py-4 text-sm font-medium text-gray-800 dark:text-gray-200">
                     {order.customer || order.customerName || "Customer"}
                   </td>
 
-                  <td className="px-5 py-4 text-sm text-gray-600">
+                  <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
                     {order.restaurant || order.restaurantName || "Restaurant"}
                   </td>
 
-                  <td className="px-5 py-4 text-sm font-bold text-gray-800">
+                  <td className="px-5 py-4 text-sm font-bold text-gray-800 dark:text-gray-200">
                     {formatCurrency(
                       order.amount ?? order.total ?? order.totalAmount
                     )}
@@ -760,7 +787,7 @@ function Dashboard() {
                     </span>
                   </td>
 
-                  <td className="px-5 py-4 text-xs text-gray-500">
+                  <td className="px-5 py-4 text-xs text-gray-500 dark:text-gray-400">
                     {order.time || order.createdAt || order.date || "—"}
                   </td>
                 </tr>
@@ -770,7 +797,7 @@ function Dashboard() {
                 <tr>
                   <td
                     colSpan="6"
-                    className="px-5 py-12 text-center text-sm text-gray-500"
+                    className="px-5 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
                   >
                     <FiPackage
                       className="mx-auto mb-3 text-gray-300"
@@ -785,48 +812,49 @@ function Dashboard() {
           </table>
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-gray-100 px-5 py-4 sm:px-6">
-          <p className="text-xs text-gray-500">
+        <div className="flex items-center justify-between gap-3 border-t border-gray-100 px-5 py-4 dark:border-gray-700 sm:px-6">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             Showing {filteredOrders.length} of {orders.length} orders
           </p>
 
           <Link
             to="/orders"
-            className="text-sm font-bold text-orange-600 hover:text-orange-700"
+            className="text-sm font-bold text-orange-600 transition hover:text-orange-700"
           >
             Manage orders →
           </Link>
         </div>
       </section>
             {/* Recent Activities */}
-      <section className="rounded-2xl border border-gray-100 bg-white p-5 sm:p-6">
+      <section className="hover-card rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Recent Activities
             </h2>
 
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               Latest platform updates
             </p>
           </div>
 
           <Link
             to="/notifications"
-            className="text-sm font-bold text-orange-600 hover:text-orange-700"
+            className="text-sm font-bold text-orange-600 transition hover:text-orange-700"
           >
             View all
           </Link>
         </div>
 
-        <div className="divide-y divide-gray-100">
-          {activities.map((activity) => {
+        <div className="divide-y divide-gray-100 dark:divide-gray-700">
+          {activities.map((activity, index) => {
             const Icon = activity.icon;
 
             return (
               <div
                 key={activity.title}
-                className="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
+                style={{ animationDelay: `${index * 80}ms` }}
+                className="card-animate flex items-center gap-4 py-4 first:pt-0 last:pb-0"
               >
                 <div
                   className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${activity.color}`}
@@ -835,16 +863,16 @@ function Dashboard() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold text-gray-800">
+                  <p className="text-sm font-bold text-gray-800 dark:text-gray-100">
                     {activity.title}
                   </p>
 
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     {activity.detail}
                   </p>
                 </div>
 
-                <span className="shrink-0 text-xs text-gray-400">
+                <span className="shrink-0 text-xs text-gray-400 dark:text-gray-500">
                   {activity.time}
                 </span>
               </div>
@@ -855,18 +883,18 @@ function Dashboard() {
 
       {/* Attention Required */}
       {(orderStats.pending > 0 || orderStats.cancelled > 0) && (
-        <section className="rounded-2xl border border-orange-100 bg-orange-50 p-5">
+        <section className="page-animate rounded-2xl border border-orange-100 bg-orange-50 p-5 dark:border-orange-900/40 dark:bg-orange-950/30">
           <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-white p-3 text-orange-600">
+            <div className="rounded-xl bg-white p-3 text-orange-600 dark:bg-gray-800">
               <FiAlertCircle size={22} />
             </div>
 
             <div className="flex-1">
-              <h2 className="font-bold text-gray-900">
+              <h2 className="font-bold text-gray-900 dark:text-white">
                 Attention Required
               </h2>
 
-              <p className="mt-1 text-sm leading-6 text-gray-600">
+              <p className="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-300">
                 You have {orderStats.pending} pending order
                 {orderStats.pending !== 1 ? "s" : ""}
                 {orderStats.cancelled > 0
@@ -879,7 +907,7 @@ function Dashboard() {
 
               <Link
                 to="/orders"
-                className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-orange-600 hover:text-orange-700"
+                className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-orange-600 transition hover:gap-3 hover:text-orange-700"
               >
                 Review orders <FiArrowUpRight size={17} />
               </Link>

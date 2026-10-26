@@ -1,6 +1,13 @@
 
 @import "tailwindcss";
 
+/* Enable Tailwind dark: classes using the .dark class */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ================================
+   GLOBAL RESET
+================================ */
+
 * {
   box-sizing: border-box;
 }
@@ -13,10 +20,17 @@ body,
   width: 100%;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: Inter, Arial, sans-serif;
   background: #f8fafc;
   color: #172033;
+  transition:
+    background-color 250ms ease,
+    color 250ms ease;
 }
 
 button,
@@ -30,7 +44,52 @@ button {
   cursor: pointer;
 }
 
-/* Hide scrollbar across the application */
+img {
+  max-width: 100%;
+}
+
+/* ================================
+   DARK MODE GLOBAL COLORS
+================================ */
+
+html.dark,
+html.dark body {
+  background: #111827;
+  color: #f9fafb;
+}
+
+html.dark #root {
+  background: #111827;
+  color: #f9fafb;
+}
+
+/* Smooth theme transitions */
+body,
+aside,
+header,
+main,
+section,
+article,
+button,
+a,
+input,
+select,
+textarea,
+table,
+tr,
+td,
+th {
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+/* ================================
+   HIDE PAGE SCROLLBARS
+================================ */
+
 html,
 body,
 #root {
@@ -49,7 +108,7 @@ body::-webkit-scrollbar,
   height: 0;
 }
 
-/* Hide sidebar scrollbar too */
+/* Hide sidebar scrollbar */
 aside,
 aside * {
   scrollbar-width: none;
@@ -59,4 +118,277 @@ aside * {
 aside::-webkit-scrollbar,
 aside *::-webkit-scrollbar {
   display: none;
+}
+
+/* ================================
+   PAGE ENTRANCE ANIMATION
+================================ */
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-animate {
+  animation: pageEnter 450ms ease-out both;
+}
+
+/* ================================
+   CARD ENTRANCE ANIMATION
+================================ */
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.card-animate {
+  animation: cardEnter 450ms ease-out both;
+}
+
+.delay-1 {
+  animation-delay: 80ms;
+}
+
+.delay-2 {
+  animation-delay: 160ms;
+}
+
+.delay-3 {
+  animation-delay: 240ms;
+}
+
+.delay-4 {
+  animation-delay: 320ms;
+}
+
+/* ================================
+   DASHBOARD CARD HOVER
+================================ */
+
+.hover-card {
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease,
+    border-color 250ms ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 8%);
+}
+
+html.dark .hover-card:hover {
+  box-shadow: 0 12px 28px rgb(0 0 0 / 25%);
+}
+
+/* ================================
+   SIDEBAR ANIMATIONS
+================================ */
+
+.sidebar-link {
+  transition:
+    transform 200ms ease,
+    background-color 200ms ease,
+    color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+.sidebar-link:hover {
+  transform: translateX(4px);
+}
+
+.sidebar-icon {
+  transition: transform 200ms ease;
+}
+
+.sidebar-link:hover .sidebar-icon {
+  transform: scale(1.12);
+}
+
+/* ================================
+   DROPDOWN ANIMATION
+================================ */
+
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dropdown-animate {
+  transform-origin: top right;
+  animation: dropdownEnter 180ms ease-out both;
+}
+
+/* ================================
+   MODAL ANIMATION
+================================ */
+
+@keyframes modalEnter {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-animate {
+  animation: modalEnter 250ms ease-out both;
+}
+
+@keyframes overlayEnter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.overlay-animate {
+  animation: overlayEnter 200ms ease-out both;
+}
+
+/* ================================
+   BUTTON INTERACTIONS
+================================ */
+
+.button-animate {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+.button-animate:hover {
+  transform: translateY(-2px);
+}
+
+.button-animate:active {
+  transform: scale(0.97);
+}
+
+/* ================================
+   ICON ANIMATION
+================================ */
+
+.icon-animate {
+  transition: transform 200ms ease;
+}
+
+.icon-animate:hover {
+  transform: rotate(8deg) scale(1.1);
+}
+
+/* ================================
+   NOTIFICATION PULSE
+================================ */
+
+@keyframes notificationPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(239 68 68 / 35%);
+  }
+
+  50% {
+    box-shadow: 0 0 0 5px rgb(239 68 68 / 0%);
+  }
+}
+
+.notification-pulse {
+  animation: notificationPulse 1.8s infinite;
+}
+
+/* ================================
+   LOADING SHIMMER
+================================ */
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-animate {
+  background: linear-gradient(
+    90deg,
+    #f3f4f6 25%,
+    #e5e7eb 50%,
+    #f3f4f6 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite linear;
+}
+
+html.dark .skeleton-animate {
+  background: linear-gradient(
+    90deg,
+    #1f2937 25%,
+    #374151 50%,
+    #1f2937 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* ================================
+   TABLE ROW HOVER
+================================ */
+
+.table-row-animate {
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.table-row-animate:hover {
+  background-color: #fff7ed;
+}
+
+html.dark .table-row-animate:hover {
+  background-color: #1f2937;
+}
+
+/* ================================
+   REDUCE MOTION ACCESSIBILITY
+================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }
