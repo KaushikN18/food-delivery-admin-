@@ -1,3 +1,4 @@
+
 import { NavLink } from "react-router-dom";
 import {
   FiGrid,
@@ -54,7 +55,6 @@ function Sidebar({ isOpen, setIsOpen }) {
               <h1 className="text-lg font-extrabold tracking-tight text-gray-900 dark:text-white">
                 Foodie<span className="text-orange-500">Admin</span>
               </h1>
-
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Management Panel
               </p>
@@ -87,29 +87,38 @@ function Sidebar({ isOpen, setIsOpen }) {
                   to={item.path}
                   end={item.path === "/"}
                   onClick={() => setIsOpen(false)}
-                  style={{ animationDelay: `${index * 35}ms` }}
+                  style={{ animationDelay: `${index * 40}ms` }}
                   className={({ isActive }) =>
-                    `group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-3 text-sm font-medium transition-all duration-200 hover:translate-x-1 ${
+                    [
+                      "sidebar-link group relative flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium",
+                      "transition-[background-color,color,transform,box-shadow] duration-300 ease-out",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400",
                       isActive
-                        ? "bg-orange-500 text-white shadow-md shadow-orange-500/20"
-                        : "text-gray-600 hover:bg-orange-50 hover:text-orange-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-orange-400"
-                    }`
+                        ? "active bg-orange-500 text-white shadow-md shadow-orange-500/20"
+                        : "text-gray-600 hover:translate-x-1 hover:bg-orange-50 hover:text-orange-600 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-orange-400",
+                    ].join(" ")
                   }
                 >
                   {({ isActive }) => (
                     <>
                       <span
-                        className={`absolute inset-y-2 left-0 w-1 rounded-r-full bg-white transition-opacity ${
+                        className={`absolute inset-y-2 left-0 w-1 rounded-r-full bg-white transition-opacity duration-300 ${
                           isActive ? "opacity-100" : "opacity-0"
                         }`}
                       />
 
                       <Icon
                         size={19}
-                        className="shrink-0 transition-transform duration-200 group-hover:scale-110"
+                        className="shrink-0 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-[-4deg]"
                       />
 
-                      <span className="truncate">{item.name}</span>
+                      <span className="min-w-0 truncate">
+                        {item.name}
+                      </span>
+
+                      {!isActive && (
+                        <span className="pointer-events-none absolute inset-0 rounded-xl bg-orange-400/0 transition-colors duration-300 group-hover:bg-orange-400/[0.04]" />
+                      )}
                     </>
                   )}
                 </NavLink>
@@ -118,7 +127,7 @@ function Sidebar({ isOpen, setIsOpen }) {
           </nav>
         </div>
 
-        {/* Footer - Support Card Removed */}
+        {/* Footer */}
         <div className="shrink-0 border-t border-gray-100 px-4 py-4 dark:border-gray-700">
           <p className="text-center text-[11px] text-gray-400 dark:text-gray-500">
             FoodieAdmin © 2026

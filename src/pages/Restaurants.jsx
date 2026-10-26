@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useState } from "react";
 import {
   FiSearch,
@@ -30,7 +29,8 @@ const initialRestaurants = [
     commission: 15,
     status: "Approved",
     open: true,
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
+    image:
+      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
     menu: [
       { id: 101, name: "Chicken Biryani", category: "Main Course", price: 280, available: true },
       { id: 102, name: "Butter Naan", category: "Bread", price: 45, available: true },
@@ -49,7 +49,8 @@ const initialRestaurants = [
     commission: 12,
     status: "Approved",
     open: true,
-    image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600",
+    image:
+      "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600",
     menu: [
       { id: 201, name: "Margherita Pizza", category: "Pizza", price: 249, available: true },
       { id: 202, name: "Farmhouse Pizza", category: "Pizza", price: 349, available: true },
@@ -68,7 +69,8 @@ const initialRestaurants = [
     commission: 10,
     status: "Pending",
     open: false,
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600",
+    image:
+      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600",
     menu: [
       { id: 301, name: "Fresh Garden Salad", category: "Salads", price: 180, available: true },
       { id: 302, name: "Paneer Wrap", category: "Wraps", price: 160, available: true },
@@ -86,7 +88,8 @@ const initialRestaurants = [
     commission: 14,
     status: "Approved",
     open: true,
-    image: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600",
+    image:
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600",
     menu: [
       { id: 401, name: "Classic Burger", category: "Burgers", price: 180, available: true },
       { id: 402, name: "French Fries", category: "Sides", price: 90, available: true },
@@ -104,7 +107,8 @@ const initialRestaurants = [
     commission: 12,
     status: "Pending",
     open: false,
-    image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600",
+    image:
+      "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600",
     menu: [
       { id: 501, name: "Masala Dosa", category: "Breakfast", price: 100, available: true },
       { id: 502, name: "Idli Set", category: "Breakfast", price: 60, available: true },
@@ -122,7 +126,8 @@ const initialRestaurants = [
     commission: 10,
     status: "Rejected",
     open: false,
-    image: "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600",
+    image:
+      "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600",
     menu: [
       { id: 601, name: "Chocolate Cake", category: "Cakes", price: 150, available: true },
       { id: 602, name: "Chocolate Brownie", category: "Desserts", price: 120, available: true },
@@ -142,9 +147,11 @@ const categories = [
 function getSavedRestaurants() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
+
     if (!saved) return initialRestaurants;
 
     const parsed = JSON.parse(saved);
+
     return Array.isArray(parsed) ? parsed : initialRestaurants;
   } catch {
     return initialRestaurants;
@@ -194,28 +201,43 @@ function Restaurants() {
         restaurant.location.toLowerCase().includes(query);
 
       const matchesCategory =
-        category === "All Categories" || restaurant.category === category;
+        category === "All Categories" ||
+        restaurant.category === category;
 
       const matchesStatus =
-        statusFilter === "All" || restaurant.status === statusFilter;
+        statusFilter === "All" ||
+        restaurant.status === statusFilter;
 
       return matchesSearch && matchesCategory && matchesStatus;
     });
   }, [restaurants, search, category, statusFilter]);
 
-  const approved = restaurants.filter((r) => r.status === "Approved").length;
-  const pending = restaurants.filter((r) => r.status === "Pending").length;
-  const totalOrders = restaurants.reduce((sum, r) => sum + r.orders, 0);
+  const approved = restaurants.filter(
+    (restaurant) => restaurant.status === "Approved"
+  ).length;
+
+  const pending = restaurants.filter(
+    (restaurant) => restaurant.status === "Pending"
+  ).length;
+
+  const totalOrders = restaurants.reduce(
+    (sum, restaurant) => sum + restaurant.orders,
+    0
+  );
 
   const updateRestaurant = (id, changes) => {
     setRestaurants((current) =>
       current.map((restaurant) =>
-        restaurant.id === id ? { ...restaurant, ...changes } : restaurant
+        restaurant.id === id
+          ? { ...restaurant, ...changes }
+          : restaurant
       )
     );
 
     setSelected((current) =>
-      current?.id === id ? { ...current, ...changes } : current
+      current?.id === id
+        ? { ...current, ...changes }
+        : current
     );
   };
 
@@ -234,12 +256,14 @@ function Restaurants() {
       orders: 0,
       status: "Pending",
       open: false,
-      image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
+      image:
+        "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600",
       menu: [],
     };
 
     setRestaurants((current) => [restaurant, ...current]);
     setShowForm(false);
+
     setForm({
       name: "",
       owner: "",
@@ -248,6 +272,7 @@ function Restaurants() {
       phone: "",
       commission: 12,
     });
+
     setSearch("");
     setCategory("All Categories");
     setStatusFilter("All");
@@ -257,7 +282,11 @@ function Restaurants() {
   const saveMenuItem = (event) => {
     event.preventDefault();
 
-    if (!selected || !menuForm.name.trim() || Number(menuForm.price) <= 0) {
+    if (
+      !selected ||
+      !menuForm.name.trim() ||
+      Number(menuForm.price) <= 0
+    ) {
       return;
     }
 
@@ -285,20 +314,31 @@ function Restaurants() {
 
     updateRestaurant(selected.id, { menu });
     setEditingMenuItem(null);
-    setMenuForm({ name: "", category: "Main Course", price: "" });
-    setNotice(editingMenuItem ? "Menu item updated." : "Menu item added.");
+    setMenuForm({
+      name: "",
+      category: "Main Course",
+      price: "",
+    });
+
+    setNotice(
+      editingMenuItem ? "Menu item updated." : "Menu item added."
+    );
   };
 
   const deleteMenuItem = (itemId) => {
     const menu = selected.menu.filter((item) => item.id !== itemId);
+
     updateRestaurant(selected.id, { menu });
     setNotice("Menu item removed.");
   };
 
   const toggleMenuAvailability = (itemId) => {
     const menu = selected.menu.map((item) =>
-      item.id === itemId ? { ...item, available: !item.available } : item
+      item.id === itemId
+        ? { ...item, available: !item.available }
+        : item
     );
+
     updateRestaurant(selected.id, { menu });
   };
 
@@ -328,17 +368,19 @@ function Restaurants() {
       color: "bg-blue-100 text-blue-600",
     },
   ];
-
-  return (
-    <div className="space-y-6">
+    return (
+    <div className="page-animate space-y-6">
+      {/* Page header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <p className="text-sm text-gray-500">
             Overview / Restaurant Management
           </p>
+
           <h1 className="mt-2 text-2xl font-extrabold text-gray-900 sm:text-3xl">
             Restaurants & Menu
           </h1>
+
           <p className="mt-2 text-sm text-gray-500">
             Manage restaurant registrations, menus, pricing and availability.
           </p>
@@ -346,40 +388,52 @@ function Restaurants() {
 
         <button
           onClick={() => setShowForm(true)}
-          className="flex w-fit items-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-100 hover:bg-orange-600"
+          className="button-animate flex w-fit items-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-100 hover:bg-orange-600"
         >
           <FiPlus size={18} />
           Register Restaurant
         </button>
       </div>
 
+      {/* Notification */}
       {notice && (
         <div
           role="status"
           className="flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
         >
           <span>{notice}</span>
-          <button onClick={() => setNotice("")} aria-label="Dismiss message">
+
+          <button
+            onClick={() => setNotice("")}
+            aria-label="Dismiss message"
+            className="button-animate"
+          >
             <FiX size={18} />
           </button>
         </div>
       )}
 
+      {/* Summary cards */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {summaryCards.map((card) => {
+        {summaryCards.map((card, index) => {
           const Icon = card.icon;
 
           return (
             <div
               key={card.label}
-              className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+              style={{ animationDelay: `${index * 100}ms` }}
+              className="card-animate hover-card rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
             >
               <div
                 className={`flex h-11 w-11 items-center justify-center rounded-xl ${card.color}`}
               >
                 <Icon size={22} />
               </div>
-              <p className="mt-4 text-sm text-gray-500">{card.label}</p>
+
+              <p className="mt-4 text-sm text-gray-500">
+                {card.label}
+              </p>
+
               <h2 className="mt-1 text-2xl font-extrabold text-gray-900">
                 {card.value}
               </h2>
@@ -388,13 +442,15 @@ function Restaurants() {
         })}
       </section>
 
-      <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
+      {/* Search and filters */}
+      <section className="card-animate rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <div className="relative">
             <FiSearch
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
               size={18}
             />
+
             <input
               value={search}
               onChange={(event) => setSearch(event.target.value)}
@@ -406,7 +462,7 @@ function Restaurants() {
           <select
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400"
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400"
           >
             {categories.map((item) => (
               <option key={item} value={item}>
@@ -418,7 +474,7 @@ function Restaurants() {
           <select
             value={statusFilter}
             onChange={(event) => setStatusFilter(event.target.value)}
-            className="rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400"
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400"
           >
             {["All", "Approved", "Pending", "Rejected"].map((item) => (
               <option key={item} value={item}>
@@ -429,17 +485,19 @@ function Restaurants() {
         </div>
       </section>
 
+      {/* Restaurant cards */}
       <section className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3">
-        {filtered.map((restaurant) => (
+        {filtered.map((restaurant, index) => (
           <article
             key={restaurant.id}
-            className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+            style={{ animationDelay: `${(index % 6) * 70}ms` }}
+            className="card-animate hover-card overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
           >
             <div className="relative h-44 bg-gray-100">
               <img
                 src={restaurant.image}
                 alt={restaurant.name}
-                className="h-full w-full object-cover"
+                className="h-full w-full object-cover transition duration-300 hover:scale-105"
               />
 
               <span
@@ -468,10 +526,11 @@ function Restaurants() {
             <div className="space-y-4 p-5">
               <div>
                 <div className="flex items-start justify-between gap-3">
-                  <div>
+                  <div className="min-w-0">
                     <h2 className="text-lg font-extrabold text-gray-900">
                       {restaurant.name}
                     </h2>
+
                     <p className="mt-1 text-sm text-gray-500">
                       Owned by {restaurant.owner}
                     </p>
@@ -487,6 +546,7 @@ function Restaurants() {
                   <FiMapPin className="shrink-0 text-orange-500" />
                   {restaurant.location}
                 </p>
+
                 <p className="mt-2 text-sm text-gray-500">
                   {restaurant.category} · {restaurant.orders} orders
                 </p>
@@ -499,6 +559,7 @@ function Restaurants() {
                     {restaurant.commission}%
                   </p>
                 </div>
+
                 <div>
                   <p className="text-xs text-gray-500">Menu items</p>
                   <p className="mt-1 font-bold text-gray-900">
@@ -510,7 +571,7 @@ function Restaurants() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSelected(restaurant)}
-                  className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                  className="button-animate flex flex-1 items-center justify-center gap-2 rounded-xl border border-gray-200 px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   <FiEye size={16} />
                   Details & Menu
@@ -519,10 +580,12 @@ function Restaurants() {
                 {restaurant.status === "Pending" && (
                   <button
                     onClick={() => {
-                      updateRestaurant(restaurant.id, { status: "Approved" });
+                      updateRestaurant(restaurant.id, {
+                        status: "Approved",
+                      });
                       setNotice(`${restaurant.name} approved.`);
                     }}
-                    className="rounded-xl bg-green-500 px-3 py-2.5 text-sm font-bold text-white hover:bg-green-600"
+                    className="button-animate rounded-xl bg-green-500 px-3 py-2.5 text-sm font-bold text-white hover:bg-green-600"
                   >
                     Approve
                   </button>
@@ -534,13 +597,14 @@ function Restaurants() {
                       updateRestaurant(restaurant.id, {
                         open: !restaurant.open,
                       });
+
                       setNotice(
                         `${restaurant.name} is now ${
                           restaurant.open ? "closed" : "open"
                         }.`
                       );
                     }}
-                    className={`rounded-xl px-3 py-2.5 text-sm font-bold ${
+                    className={`button-animate rounded-xl px-3 py-2.5 text-sm font-bold ${
                       restaurant.open
                         ? "bg-red-50 text-red-600 hover:bg-red-100"
                         : "bg-green-50 text-green-700 hover:bg-green-100"
@@ -557,41 +621,46 @@ function Restaurants() {
         {filtered.length === 0 && (
           <div className="rounded-2xl border border-gray-100 bg-white p-10 text-center md:col-span-2 2xl:col-span-3">
             <FiCoffee className="mx-auto text-gray-300" size={36} />
+
             <p className="mt-3 font-bold text-gray-800">
               No restaurants found
             </p>
+
             <p className="mt-1 text-sm text-gray-500">
               Change your search or filters and try again.
             </p>
           </div>
         )}
       </section>
-
-      {/* Registration modal */}
+            {/* Registration modal */}
       {showForm && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/50 p-4"
+          className="overlay-animate fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/50 p-4"
           onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setShowForm(false);
+            if (event.target === event.currentTarget) {
+              setShowForm(false);
+            }
           }}
         >
           <form
             onSubmit={handleCreateRestaurant}
-            className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+            className="modal-animate max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
           >
             <div className="mb-6 flex items-center justify-between">
               <div>
                 <h2 className="text-xl font-extrabold text-gray-900">
                   Register Restaurant
                 </h2>
+
                 <p className="mt-1 text-sm text-gray-500">
                   New registrations require approval.
                 </p>
               </div>
+
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="rounded-lg bg-gray-100 p-2 text-gray-600"
+                className="button-animate rounded-lg bg-gray-100 p-2 text-gray-600"
                 aria-label="Close form"
               >
                 <FiX size={20} />
@@ -609,11 +678,15 @@ function Restaurants() {
                   <label className="mb-2 block text-sm font-semibold text-gray-700">
                     {label}
                   </label>
+
                   <input
                     required
                     value={form[key]}
                     onChange={(event) =>
-                      setForm({ ...form, [key]: event.target.value })
+                      setForm({
+                        ...form,
+                        [key]: event.target.value,
+                      })
                     }
                     placeholder={placeholder}
                     className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
@@ -625,10 +698,14 @@ function Restaurants() {
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Category
                 </label>
+
                 <select
                   value={form.category}
                   onChange={(event) =>
-                    setForm({ ...form, category: event.target.value })
+                    setForm({
+                      ...form,
+                      category: event.target.value,
+                    })
                   }
                   className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm"
                 >
@@ -646,6 +723,7 @@ function Restaurants() {
                 <label className="mb-2 block text-sm font-semibold text-gray-700">
                   Commission (%)
                 </label>
+
                 <input
                   required
                   type="number"
@@ -667,13 +745,14 @@ function Restaurants() {
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-bold text-gray-700"
+                className="button-animate flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-bold text-gray-700"
               >
                 Cancel
               </button>
+
               <button
                 type="submit"
-                className="flex-1 rounded-xl bg-orange-500 px-4 py-3 text-sm font-bold text-white hover:bg-orange-600"
+                className="button-animate flex-1 rounded-xl bg-orange-500 px-4 py-3 text-sm font-bold text-white hover:bg-orange-600"
               >
                 Submit Registration
               </button>
@@ -682,10 +761,10 @@ function Restaurants() {
         </div>
       )}
 
-      {/* Restaurant and menu details */}
+      {/* Restaurant and menu details modal */}
       {selected && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/50 p-3 sm:p-6"
+          className="overlay-animate fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/50 p-3 sm:p-6"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setSelected(null);
@@ -696,23 +775,25 @@ function Restaurants() {
           <div
             role="dialog"
             aria-modal="true"
-            className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+            className="modal-animate max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-gray-100 p-5 sm:p-6">
               <div>
                 <h2 className="text-xl font-extrabold text-gray-900">
                   {selected.name}
                 </h2>
+
                 <p className="mt-1 text-sm text-gray-500">
                   Restaurant details and menu management
                 </p>
               </div>
+
               <button
                 onClick={() => {
                   setSelected(null);
                   setEditingMenuItem(null);
                 }}
-                className="rounded-lg bg-gray-100 p-2 text-gray-600"
+                className="button-animate rounded-lg bg-gray-100 p-2 text-gray-600"
                 aria-label="Close restaurant details"
               >
                 <FiX size={20} />
@@ -720,32 +801,40 @@ function Restaurants() {
             </div>
 
             <div className="space-y-6 p-5 sm:p-6">
+              {/* Restaurant information */}
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 <div className="rounded-xl bg-gray-50 p-4">
                   <p className="text-xs text-gray-500">Owner</p>
+
                   <p className="mt-1 font-bold text-gray-900">
                     {selected.owner}
                   </p>
+
                   <p className="mt-2 text-sm text-gray-500">
                     {selected.phone}
                   </p>
                 </div>
+
                 <div className="rounded-xl bg-gray-50 p-4">
                   <p className="text-xs text-gray-500">Location</p>
+
                   <p className="mt-1 font-bold text-gray-900">
                     {selected.location}
                   </p>
+
                   <p className="mt-2 text-sm text-gray-500">
                     {selected.category}
                   </p>
                 </div>
               </div>
 
+              {/* Restaurant status and commission */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
                   <label className="mb-2 block text-sm font-bold text-gray-700">
                     Restaurant status
                   </label>
+
                   <select
                     value={selected.status}
                     onChange={(event) =>
@@ -765,6 +854,7 @@ function Restaurants() {
                   <label className="mb-2 block text-sm font-bold text-gray-700">
                     Commission (%)
                   </label>
+
                   <input
                     type="number"
                     min="0"
@@ -780,16 +870,19 @@ function Restaurants() {
                 </div>
               </div>
 
+              {/* Menu management */}
               <div>
                 <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <h3 className="font-extrabold text-gray-900">
                       Menu Management
                     </h3>
+
                     <p className="mt-1 text-sm text-gray-500">
                       {selected.menu.length} menu items
                     </p>
                   </div>
+
                   <button
                     type="button"
                     onClick={() => {
@@ -800,13 +893,14 @@ function Restaurants() {
                         price: "",
                       });
                     }}
-                    className="flex items-center gap-2 rounded-xl bg-orange-500 px-3 py-2.5 text-sm font-bold text-white"
+                    className="button-animate flex items-center gap-2 rounded-xl bg-orange-500 px-3 py-2.5 text-sm font-bold text-white"
                   >
                     <FiPlus />
                     New Item
                   </button>
                 </div>
 
+                {/* Add or edit menu item */}
                 <form
                   onSubmit={saveMenuItem}
                   className="mb-5 grid grid-cols-1 gap-3 rounded-xl border border-orange-100 bg-orange-50/50 p-4 sm:grid-cols-3"
@@ -815,7 +909,10 @@ function Restaurants() {
                     required
                     value={menuForm.name}
                     onChange={(event) =>
-                      setMenuForm({ ...menuForm, name: event.target.value })
+                      setMenuForm({
+                        ...menuForm,
+                        name: event.target.value,
+                      })
                     }
                     placeholder="Food item name"
                     className="min-w-0 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm"
@@ -828,7 +925,10 @@ function Restaurants() {
                     step="0.01"
                     value={menuForm.price}
                     onChange={(event) =>
-                      setMenuForm({ ...menuForm, price: event.target.value })
+                      setMenuForm({
+                        ...menuForm,
+                        price: event.target.value,
+                      })
                     }
                     placeholder="Price (₹)"
                     className="min-w-0 rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm"
@@ -873,7 +973,7 @@ function Restaurants() {
                           price: "",
                         });
                       }}
-                      className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold"
+                      className="button-animate rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-sm font-semibold"
                     >
                       Cancel Edit
                     </button>
@@ -881,23 +981,29 @@ function Restaurants() {
 
                   <button
                     type="submit"
-                    className="rounded-lg bg-gray-900 px-3 py-2.5 text-sm font-bold text-white sm:col-span-2"
+                    className="button-animate rounded-lg bg-gray-900 px-3 py-2.5 text-sm font-bold text-white sm:col-span-2"
                   >
                     {editingMenuItem ? "Save Changes" : "Add Menu Item"}
                   </button>
                 </form>
 
+                {/* Menu items list */}
                 <div className="space-y-3">
-                  {selected.menu.map((item) => (
+                  {selected.menu.map((item, index) => (
                     <div
                       key={item.id}
-                      className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-100 p-4"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                      className="card-animate flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-100 p-4"
                     >
                       <div className="min-w-0 flex-1">
-                        <p className="font-bold text-gray-900">{item.name}</p>
+                        <p className="font-bold text-gray-900">
+                          {item.name}
+                        </p>
+
                         <p className="mt-1 text-xs text-gray-500">
                           {item.category}
                         </p>
+
                         <p className="mt-1 font-bold text-orange-600">
                           ₹{Number(item.price).toLocaleString("en-IN")}
                         </p>
@@ -906,8 +1012,10 @@ function Restaurants() {
                       <div className="flex flex-wrap items-center gap-2">
                         <button
                           type="button"
-                          onClick={() => toggleMenuAvailability(item.id)}
-                          className={`rounded-lg px-3 py-2 text-xs font-bold ${
+                          onClick={() =>
+                            toggleMenuAvailability(item.id)
+                          }
+                          className={`button-animate rounded-lg px-3 py-2 text-xs font-bold ${
                             item.available
                               ? "bg-green-50 text-green-700"
                               : "bg-red-50 text-red-600"
@@ -927,7 +1035,7 @@ function Restaurants() {
                               price: String(item.price),
                             });
                           }}
-                          className="rounded-lg border border-gray-200 p-2 text-gray-600 hover:bg-gray-50"
+                          className="button-animate rounded-lg border border-gray-200 p-2 text-gray-600 hover:bg-gray-50"
                         >
                           <FiEdit2 size={16} />
                         </button>
@@ -936,7 +1044,7 @@ function Restaurants() {
                           type="button"
                           aria-label={`Delete ${item.name}`}
                           onClick={() => deleteMenuItem(item.id)}
-                          className="rounded-lg border border-red-100 p-2 text-red-500 hover:bg-red-50"
+                          className="button-animate rounded-lg border border-red-100 p-2 text-red-500 hover:bg-red-50"
                         >
                           <FiTrash2 size={16} />
                         </button>
@@ -957,7 +1065,7 @@ function Restaurants() {
                   setSelected(null);
                   setEditingMenuItem(null);
                 }}
-                className="w-full rounded-xl bg-orange-500 px-4 py-3 font-bold text-white hover:bg-orange-600"
+                className="button-animate w-full rounded-xl bg-orange-500 px-4 py-3 font-bold text-white hover:bg-orange-600"
               >
                 Done
               </button>

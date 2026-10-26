@@ -91,7 +91,11 @@ const initialCustomers = [
 function getSavedCustomers() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
-    return saved ? JSON.parse(saved) : initialCustomers;
+
+    if (!saved) return initialCustomers;
+
+    const parsed = JSON.parse(saved);
+    return Array.isArray(parsed) ? parsed : initialCustomers;
   } catch {
     return initialCustomers;
   }
@@ -102,7 +106,7 @@ function formatCurrency(amount) {
     style: "currency",
     currency: "INR",
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(amount || 0);
 }
 
 function Customers() {
@@ -111,6 +115,7 @@ function Customers() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [notice, setNotice] = useState("");
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -119,11 +124,34 @@ function Customers() {
   });
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(customers));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(customers));
+    } catch {
+      setNotice("Unable to save changes in browser storage.");
+    }
   }, [customers]);
 
-  const stats = useMemo(() => {
-    return {
+  useEffect(() => {
+    if (!notice) return undefined;
+
+    const timer = setTimeout(() => setNotice(""), 3500);
+    return () => clearTimeout(timer);
+  }, [notice]);
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setShowAddModal(false);
+        setSelectedCustomer(null);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const stats = useMemo(
+    () => ({
       total: customers.length,
       active: customers.filter((customer) => customer.status === "Active")
         .length,
@@ -133,18 +161,20 @@ function Customers() {
         (total, customer) => total + Number(customer.orders || 0),
         0
       ),
-    };
-  }, [customers]);
+    }),
+    [customers]
+  );
 
   const filteredCustomers = useMemo(() => {
-    return customers.filter((customer) => {
-      const searchText = search.toLowerCase();
+    const searchText = search.toLowerCase().trim();
 
-      const matchesSearch =
-        customer.name.toLowerCase().includes(searchText) ||
-        customer.email.toLowerCase().includes(searchText) ||
-        customer.phone.toLowerCase().includes(searchText) ||
-        customer.id.toLowerCase().includes(searchText);
+    return customers.filter((customer) => {
+      const matchesSearch = [
+        customer.name,
+        customer.email,
+        customer.phone,
+        customer.id,
+      ].some((value) => String(value || "").toLowerCase().includes(searchText));
 
       const matchesStatus =
         statusFilter === "All" || customer.status === statusFilter;
@@ -171,97 +201,134 @@ function Customers() {
     setCustomers((previous) => [newCustomer, ...previous]);
     setForm({ name: "", email: "", phone: "", address: "" });
     setShowAddModal(false);
+    setSearch("");
+    setStatusFilter("All");
+    setNotice("Customer added successfully.");
   };
 
   const toggleCustomerStatus = (id) => {
+    const customer = customers.find((item) => item.id === id);
+    if (!customer) return;
+
+    const nextStatus = customer.status === "Active" ? "Blocked" : "Active";
+
     setCustomers((previous) =>
-      previous.map((customer) =>
-        customer.id === id
-          ? {
-              ...customer,
-              status: customer.status === "Active" ? "Blocked" : "Active",
-            }
-          : customer
+      previous.map((item) =>
+        item.id === id ? { ...item, status: nextStatus } : item
       )
     );
 
     setSelectedCustomer((previous) =>
-      previous?.id === id
-        ? {
-            ...previous,
-            status: previous.status === "Active" ? "Blocked" : "Active",
-          }
-        : previous
+      previous?.id === id ? { ...previous, status: nextStatus } : previous
+    );
+
+    setNotice(
+      `${customer.name} has been ${nextStatus === "Blocked" ? "blocked" : "activated"}.`
     );
   };
 
+  const cardClass =
+    "card-animate hover-card rounded-2xl border border-slate-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-900";
+
+  const buttonClass =
+    "button-animate inline-flex items-center justify-center gap-2 rounded-xl transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange-400";
+
+  const statsCards = [
+    {
+      label: "Total Customers",
+      value: stats.total,
+      icon: FiUsers,
+      color: "bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400",
+    },
+    {
+      label: "Active Customers",
+      value: stats.active,
+      icon: FiUserCheck,
+      color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
+    },
+    {
+      label: "Blocked Customers",
+      value: stats.blocked,
+      icon: FiUserX,
+      color: "bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400",
+    },
+    {
+      label: "Total Orders",
+      value: stats.orders,
+      icon: FiShoppingBag,
+      color: "bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
+    },
+  ];
+
   return (
-    <div className="min-h-screen space-y-6 bg-slate-50 p-4 sm:p-6 lg:p-8">
+    <div className="page-animate min-w-0 space-y-6">
+      {/* Page heading */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm font-medium text-orange-600">
+          <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
             Foodie Admin / Customers
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-slate-800 sm:text-3xl">
+
+          <h1 className="mt-1 text-2xl font-extrabold text-slate-800 dark:text-white sm:text-3xl">
             Customers
           </h1>
-          <p className="mt-2 text-sm text-slate-500">
+
+          <p className="mt-2 text-sm text-slate-500 dark:text-gray-400">
             Manage customer profiles and monitor their activity.
           </p>
         </div>
 
         <button
+          type="button"
           onClick={() => setShowAddModal(true)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600"
+          className={`${buttonClass} w-fit bg-orange-500 px-5 py-3 text-sm font-semibold text-white shadow-sm hover:bg-orange-600`}
         >
           <FiPlus size={18} />
           Add Customer
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {[
-          {
-            label: "Total Customers",
-            value: stats.total,
-            icon: FiUsers,
-            color: "bg-orange-100 text-orange-600",
-          },
-          {
-            label: "Active Customers",
-            value: stats.active,
-            icon: FiUserCheck,
-            color: "bg-emerald-100 text-emerald-600",
-          },
-          {
-            label: "Blocked Customers",
-            value: stats.blocked,
-            icon: FiUserX,
-            color: "bg-red-100 text-red-600",
-          },
-          {
-            label: "Total Orders",
-            value: stats.orders,
-            icon: FiShoppingBag,
-            color: "bg-blue-100 text-blue-600",
-          },
-        ].map((stat) => {
+      {/* Notification */}
+      {notice && (
+        <div
+          role="status"
+          className="card-animate flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300"
+        >
+          <span>{notice}</span>
+          <button
+            type="button"
+            onClick={() => setNotice("")}
+            aria-label="Dismiss notification"
+            className="rounded-lg p-1 hover:bg-green-100 dark:hover:bg-green-900"
+          >
+            <FiX size={18} />
+          </button>
+        </div>
+      )}
+
+      {/* Summary cards */}
+      <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {statsCards.map((stat, index) => {
           const Icon = stat.icon;
 
           return (
             <div
               key={stat.label}
-              className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"
+              style={{ animationDelay: `${index * 80}ms` }}
+              className={cardClass}
             >
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm text-slate-500">{stat.label}</p>
-                  <h2 className="mt-3 text-2xl font-bold text-slate-800">
+                  <p className="text-sm text-slate-500 dark:text-gray-400">
+                    {stat.label}
+                  </p>
+                  <h2 className="mt-3 text-2xl font-extrabold text-slate-800 dark:text-white">
                     {stat.value.toLocaleString("en-IN")}
                   </h2>
                 </div>
+
                 <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.color}`}
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 hover:scale-110 ${stat.color}`}
                 >
                   <Icon size={22} />
                 </div>
@@ -269,15 +336,16 @@ function Customers() {
             </div>
           );
         })}
-      </div>
+      </section>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
-        <div className="flex flex-col gap-4 border-b border-slate-100 p-5 md:flex-row md:items-center md:justify-between">
+      {/* Customer directory */}
+      <section className="card-animate overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-900">
+        <div className="flex flex-col gap-4 border-b border-slate-100 p-5 md:flex-row md:items-center md:justify-between dark:border-gray-700">
           <div>
-            <h2 className="text-lg font-bold text-slate-800">
+            <h2 className="text-lg font-bold text-slate-800 dark:text-white">
               Customer Directory
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
               {filteredCustomers.length} customers found
             </p>
           </div>
@@ -285,22 +353,25 @@ function Customers() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative">
               <FiSearch
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
                 size={18}
               />
+
               <input
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search customers..."
-                className="w-full rounded-xl border border-slate-200 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100 sm:w-64"
+                aria-label="Search customers"
+                className="w-full rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm text-slate-800 outline-none transition-all duration-200 placeholder:text-slate-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 sm:w-64 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
               />
             </div>
 
             <select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-orange-400"
+              aria-label="Filter customers by status"
+              className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition-all duration-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
             >
               <option value="All">All Statuses</option>
               <option value="Active">Active</option>
@@ -309,10 +380,11 @@ function Customers() {
           </div>
         </div>
 
+        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-left">
-            <thead className="bg-slate-50">
-              <tr className="text-xs uppercase tracking-wide text-slate-500">
+            <thead className="bg-slate-50 dark:bg-gray-800">
+              <tr className="text-xs uppercase tracking-wide text-slate-500 dark:text-gray-400">
                 <th className="px-5 py-4 font-semibold">Customer</th>
                 <th className="px-5 py-4 font-semibold">Contact</th>
                 <th className="px-5 py-4 font-semibold">Orders</th>
@@ -322,15 +394,16 @@ function Customers() {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-100">
-              {filteredCustomers.map((customer) => (
+            <tbody className="divide-y divide-slate-100 dark:divide-gray-700">
+              {filteredCustomers.map((customer, index) => (
                 <tr
                   key={customer.id}
-                  className="transition hover:bg-slate-50"
+                  style={{ animationDelay: `${Math.min(index * 35, 210)}ms` }}
+                  className="table-row-animate transition-colors duration-200 hover:bg-orange-50/70 dark:hover:bg-gray-800"
                 >
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-100 font-bold text-orange-600">
+                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-100 font-bold text-orange-600 transition-transform duration-300 hover:scale-110 dark:bg-orange-500/10 dark:text-orange-400">
                         {customer.name
                           .split(" ")
                           .map((part) => part[0])
@@ -338,8 +411,9 @@ function Customers() {
                           .slice(0, 2)
                           .toUpperCase()}
                       </div>
+
                       <div>
-                        <p className="font-semibold text-slate-800">
+                        <p className="font-semibold text-slate-800 dark:text-white">
                           {customer.name}
                         </p>
                         <p className="mt-1 text-xs text-slate-400">
@@ -350,26 +424,28 @@ function Customers() {
                   </td>
 
                   <td className="px-5 py-4">
-                    <p className="text-sm text-slate-700">{customer.email}</p>
+                    <p className="text-sm text-slate-700 dark:text-gray-300">
+                      {customer.email}
+                    </p>
                     <p className="mt-1 text-xs text-slate-400">
                       {customer.phone}
                     </p>
                   </td>
 
-                  <td className="px-5 py-4 text-sm font-semibold text-slate-700">
+                  <td className="px-5 py-4 text-sm font-semibold text-slate-700 dark:text-gray-300">
                     {customer.orders}
                   </td>
 
-                  <td className="px-5 py-4 text-sm font-semibold text-slate-700">
+                  <td className="px-5 py-4 text-sm font-semibold text-slate-700 dark:text-gray-300">
                     {formatCurrency(customer.spent)}
                   </td>
 
                   <td className="px-5 py-4">
                     <span
-                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                      className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                         customer.status === "Active"
-                          ? "bg-emerald-50 text-emerald-700"
-                          : "bg-red-50 text-red-600"
+                          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                          : "bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                       }`}
                     >
                       {customer.status}
@@ -379,24 +455,32 @@ function Customers() {
                   <td className="px-5 py-4">
                     <div className="flex items-center justify-end gap-2">
                       <button
+                        type="button"
                         title="View details"
+                        aria-label={`View ${customer.name}`}
                         onClick={() => setSelectedCustomer(customer)}
-                        className="rounded-lg border border-slate-200 p-2 text-slate-500 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-600"
+                        className={`${buttonClass} border border-slate-200 p-2 text-slate-500 hover:border-orange-200 hover:bg-orange-50 hover:text-orange-600 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800`}
                       >
                         <FiEye size={17} />
                       </button>
 
                       <button
+                        type="button"
                         title={
                           customer.status === "Active"
                             ? "Block customer"
                             : "Activate customer"
                         }
-                        onClick={() => toggleCustomerStatus(customer.id)}
-                        className={`rounded-lg border p-2 transition ${
+                        aria-label={
                           customer.status === "Active"
-                            ? "border-red-100 text-red-500 hover:bg-red-50"
-                            : "border-emerald-100 text-emerald-600 hover:bg-emerald-50"
+                            ? `Block ${customer.name}`
+                            : `Activate ${customer.name}`
+                        }
+                        onClick={() => toggleCustomerStatus(customer.id)}
+                        className={`${buttonClass} border p-2 ${
+                          customer.status === "Active"
+                            ? "border-red-100 text-red-500 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950/40"
+                            : "border-emerald-100 text-emerald-600 hover:bg-emerald-50 dark:border-emerald-900 dark:hover:bg-emerald-950/40"
                         }`}
                       >
                         <FiShield size={17} />
@@ -410,32 +494,55 @@ function Customers() {
                 <tr>
                   <td
                     colSpan="6"
-                    className="px-5 py-12 text-center text-sm text-slate-500"
+                    className="px-5 py-12 text-center text-sm text-slate-500 dark:text-gray-400"
                   >
-                    No customers found. Try changing your search or filter.
+                    <FiUsers className="mx-auto mb-3 text-slate-300" size={30} />
+                    <p className="font-semibold">No customers found.</p>
+                    <p className="mt-1">
+                      Try changing your search or filter.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearch("");
+                        setStatusFilter("All");
+                      }}
+                      className="mt-3 font-semibold text-orange-600 hover:text-orange-700"
+                    >
+                      Clear filters
+                    </button>
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </section>
 
+      {/* Add Customer modal */}
       {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4">
-          <div className="my-auto w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-6 flex items-center justify-between">
+        <div
+          className="overlay-animate fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setShowAddModal(false);
+          }}
+        >
+          <div className="modal-animate my-auto max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-100 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-gray-900">
+            <div className="mb-6 flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-xl font-bold text-slate-800">
+                <h2 className="text-xl font-bold text-slate-800 dark:text-white">
                   Add Customer
                 </h2>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
                   Enter the new customer's details.
                 </p>
               </div>
+
               <button
+                type="button"
                 onClick={() => setShowAddModal(false)}
-                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                aria-label="Close add customer form"
+                className="rounded-lg p-2 text-slate-500 transition-all duration-200 hover:rotate-90 hover:bg-slate-100 dark:hover:bg-gray-800"
               >
                 <FiX size={20} />
               </button>
@@ -443,7 +550,7 @@ function Customers() {
 
             <form onSubmit={handleAddCustomer} className="space-y-4">
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-gray-300">
                   Full Name
                 </label>
                 <input
@@ -454,12 +561,12 @@ function Customers() {
                     setForm({ ...form, name: event.target.value })
                   }
                   placeholder="Enter full name"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-gray-300">
                   Email Address
                 </label>
                 <input
@@ -470,12 +577,12 @@ function Customers() {
                     setForm({ ...form, email: event.target.value })
                   }
                   placeholder="customer@example.com"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-gray-300">
                   Phone Number
                 </label>
                 <input
@@ -486,12 +593,12 @@ function Customers() {
                     setForm({ ...form, phone: event.target.value })
                   }
                   placeholder="+91 98765 43210"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-slate-700">
+                <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-gray-300">
                   Address
                 </label>
                 <input
@@ -501,47 +608,75 @@ function Customers() {
                     setForm({ ...form, address: event.target.value })
                   }
                   placeholder="Area, city"
-                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-orange-400"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 outline-none transition-all duration-200 focus:border-orange-400 focus:ring-4 focus:ring-orange-100 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full rounded-xl bg-orange-500 py-3 font-semibold text-white transition hover:bg-orange-600"
-              >
-                Save Customer
-              </button>
+              <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className={`${buttonClass} flex-1 border border-slate-200 px-4 py-3 font-semibold text-slate-600 hover:bg-slate-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800`}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  className={`${buttonClass} flex-1 bg-orange-500 px-4 py-3 font-semibold text-white hover:bg-orange-600`}
+                >
+                  Save Customer
+                </button>
+              </div>
             </form>
           </div>
         </div>
       )}
 
+      {/* Customer profile modal */}
       {selectedCustomer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4">
-          <div className="my-auto w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
-            <div className="mb-6 flex items-start justify-between">
+        <div
+          className="overlay-animate fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-slate-900/50 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setSelectedCustomer(null);
+            }
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="customer-profile-title"
+            className="modal-animate my-auto max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-slate-100 bg-white p-6 shadow-2xl dark:border-gray-700 dark:bg-gray-900"
+          >
+            <div className="mb-6 flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-orange-600">
+                <p className="text-sm font-medium text-orange-600 dark:text-orange-400">
                   Customer Profile
                 </p>
-                <h2 className="mt-1 text-xl font-bold text-slate-800">
+                <h2
+                  id="customer-profile-title"
+                  className="mt-1 text-xl font-bold text-slate-800 dark:text-white"
+                >
                   {selectedCustomer.name}
                 </h2>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-slate-500 dark:text-gray-400">
                   {selectedCustomer.id}
                 </p>
               </div>
 
               <button
+                type="button"
                 onClick={() => setSelectedCustomer(null)}
-                className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+                aria-label="Close customer profile"
+                className="rounded-lg p-2 text-slate-500 transition-all duration-200 hover:rotate-90 hover:bg-slate-100 dark:hover:bg-gray-800"
               >
                 <FiX size={20} />
               </button>
             </div>
 
-            <div className="mb-6 flex items-center gap-4 rounded-xl bg-orange-50 p-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-100 text-lg font-bold text-orange-600">
+            <div className="mb-6 flex items-center gap-4 rounded-xl bg-orange-50 p-4 transition-all duration-300 hover:bg-orange-100 dark:bg-orange-500/10 dark:hover:bg-orange-500/15">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-orange-100 text-lg font-bold text-orange-600 dark:bg-orange-500/20 dark:text-orange-400">
                 {selectedCustomer.name
                   .split(" ")
                   .map((part) => part[0])
@@ -549,15 +684,16 @@ function Customers() {
                   .slice(0, 2)
                   .toUpperCase()}
               </div>
-              <div>
-                <p className="font-semibold text-slate-800">
+
+              <div className="min-w-0">
+                <p className="font-semibold text-slate-800 dark:text-white">
                   {selectedCustomer.name}
                 </p>
                 <span
                   className={`mt-1 inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
                     selectedCustomer.status === "Active"
-                      ? "bg-emerald-100 text-emerald-700"
-                      : "bg-red-100 text-red-600"
+                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
+                      : "bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400"
                   }`}
                 >
                   {selectedCustomer.status}
@@ -566,73 +702,80 @@ function Customers() {
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-start gap-3">
-                <FiMail className="mt-1 text-orange-500" />
-                <div>
-                  <p className="text-xs text-slate-400">Email</p>
-                  <p className="break-all text-sm text-slate-700">
-                    {selectedCustomer.email}
-                  </p>
-                </div>
-              </div>
+              {[
+                {
+                  label: "Email",
+                  value: selectedCustomer.email,
+                  icon: FiMail,
+                },
+                {
+                  label: "Phone",
+                  value: selectedCustomer.phone,
+                  icon: FiPhone,
+                },
+                {
+                  label: "Address",
+                  value: selectedCustomer.address || "No address provided",
+                  icon: FiMapPin,
+                },
+                {
+                  label: "Joined On",
+                  value: selectedCustomer.joined,
+                  icon: FiCalendar,
+                },
+              ].map((item) => {
+                const Icon = item.icon;
 
-              <div className="flex items-start gap-3">
-                <FiPhone className="mt-1 text-orange-500" />
-                <div>
-                  <p className="text-xs text-slate-400">Phone</p>
-                  <p className="text-sm text-slate-700">
-                    {selectedCustomer.phone}
-                  </p>
-                </div>
-              </div>
+                return (
+                  <div
+                    key={item.label}
+                    className="flex items-start gap-3 rounded-lg p-2 transition-colors duration-200 hover:bg-orange-50 dark:hover:bg-gray-800"
+                  >
+                    <Icon className="mt-1 shrink-0 text-orange-500" />
 
-              <div className="flex items-start gap-3">
-                <FiMapPin className="mt-1 text-orange-500" />
-                <div>
-                  <p className="text-xs text-slate-400">Address</p>
-                  <p className="text-sm text-slate-700">
-                    {selectedCustomer.address || "No address provided"}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3">
-                <FiCalendar className="mt-1 text-orange-500" />
-                <div>
-                  <p className="text-xs text-slate-400">Joined On</p>
-                  <p className="text-sm text-slate-700">
-                    {selectedCustomer.joined}
-                  </p>
-                </div>
-              </div>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-400">{item.label}</p>
+                      <p className="break-words text-sm text-slate-700 dark:text-gray-300">
+                        {item.value}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-slate-50 p-4">
+              <div className="rounded-xl bg-slate-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:bg-gray-800">
                 <FiShoppingBag className="mb-2 text-orange-500" size={20} />
-                <p className="text-xs text-slate-500">Total Orders</p>
-                <p className="mt-1 text-xl font-bold text-slate-800">
+                <p className="text-xs text-slate-500 dark:text-gray-400">
+                  Total Orders
+                </p>
+                <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
                   {selectedCustomer.orders}
                 </p>
               </div>
 
-              <div className="rounded-xl bg-slate-50 p-4">
+              <div className="rounded-xl bg-slate-50 p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:bg-gray-800">
                 <FiDollarSign className="mb-2 text-emerald-600" size={20} />
-                <p className="text-xs text-slate-500">Total Spent</p>
-                <p className="mt-1 text-xl font-bold text-slate-800">
+                <p className="text-xs text-slate-500 dark:text-gray-400">
+                  Total Spent
+                </p>
+                <p className="mt-1 text-xl font-bold text-slate-800 dark:text-white">
                   {formatCurrency(selectedCustomer.spent)}
                 </p>
               </div>
             </div>
 
             <button
+              type="button"
               onClick={() => toggleCustomerStatus(selectedCustomer.id)}
-              className={`mt-6 w-full rounded-xl py-3 font-semibold transition ${
+              className={`${buttonClass} mt-6 w-full py-3 font-semibold ${
                 selectedCustomer.status === "Active"
-                  ? "bg-red-50 text-red-600 hover:bg-red-100"
-                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                  ? "bg-red-50 text-red-600 hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+                  : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
               }`}
             >
+              <FiShield size={17} />
               {selectedCustomer.status === "Active"
                 ? "Block Customer"
                 : "Activate Customer"}

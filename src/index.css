@@ -1,12 +1,12 @@
 
 @import "tailwindcss";
 
-/* Enable Tailwind dark: classes using the .dark class */
+/* Enable class-based dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ================================
-   GLOBAL RESET
-================================ */
+/* ========================================
+   1. GLOBAL RESET
+======================================== */
 
 * {
   box-sizing: border-box;
@@ -15,18 +15,20 @@
 html,
 body,
 #root {
+  width: 100%;
   min-height: 100%;
   margin: 0;
-  width: 100%;
 }
 
 html {
   scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 body {
   font-family: Inter, Arial, sans-serif;
-  background: #f8fafc;
+  background-color: #f8fafc;
   color: #172033;
   transition:
     background-color 250ms ease,
@@ -46,24 +48,140 @@ button {
 
 img {
   max-width: 100%;
+  display: block;
 }
 
-/* ================================
-   DARK MODE GLOBAL COLORS
-================================ */
+/* Hide page scrollbars */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+#root::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* ========================================
+   2. GLOBAL DARK MODE
+======================================== */
 
 html.dark,
-html.dark body {
-  background: #111827;
-  color: #f9fafb;
-}
-
+html.dark body,
 html.dark #root {
-  background: #111827;
+  background-color: #111827;
   color: #f9fafb;
 }
 
-/* Smooth theme transitions */
+html.dark main,
+html.dark .min-h-screen {
+  background-color: #111827;
+  color: #f9fafb;
+}
+
+html.dark .bg-white {
+  background-color: #1f2937;
+}
+
+html.dark .bg-gray-50,
+html.dark .bg-slate-50 {
+  background-color: #111827;
+}
+
+html.dark .bg-gray-100,
+html.dark .bg-slate-100 {
+  background-color: #374151;
+}
+
+html.dark .bg-gray-200,
+html.dark .bg-slate-200 {
+  background-color: #4b5563;
+}
+
+html.dark .text-gray-950,
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-slate-950,
+html.dark .text-slate-900,
+html.dark .text-slate-800 {
+  color: #f9fafb;
+}
+
+html.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-slate-700,
+html.dark .text-slate-600 {
+  color: #d1d5db;
+}
+
+html.dark .text-gray-500,
+html.dark .text-gray-400,
+html.dark .text-slate-500,
+html.dark .text-slate-400 {
+  color: #9ca3af;
+}
+
+html.dark .border-gray-100,
+html.dark .border-gray-200,
+html.dark .border-gray-300,
+html.dark .border-slate-100,
+html.dark .border-slate-200,
+html.dark .border-slate-300 {
+  border-color: #374151;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #1f2937;
+  color: #f9fafb;
+  border-color: #4b5563;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #9ca3af;
+}
+
+html.dark option {
+  background-color: #1f2937;
+  color: #f9fafb;
+}
+
+html.dark thead,
+html.dark th {
+  background-color: #1f2937;
+  color: #e5e7eb;
+}
+
+html.dark td {
+  border-color: #374151;
+}
+
+html.dark tbody tr:hover {
+  background-color: #273449;
+}
+
+html.dark .bg-orange-500,
+html.dark .bg-orange-600,
+html.dark .bg-orange-700 {
+  color: #ffffff;
+}
+
+html.dark .hover\:bg-gray-50:hover {
+  background-color: #273449;
+}
+
+html.dark .hover\:bg-gray-100:hover {
+  background-color: #374151;
+}
+
+html.dark .hover\:bg-white:hover {
+  background-color: #273449;
+}
+
+/* ========================================
+   3. SMOOTH TRANSITIONS
+======================================== */
+
 body,
 aside,
 header,
@@ -86,29 +204,10 @@ th {
     box-shadow 200ms ease;
 }
 
-/* ================================
-   HIDE PAGE SCROLLBARS
-================================ */
+/* ========================================
+   4. HIDE SCROLLBARS
+======================================== */
 
-html,
-body,
-#root {
-  width: 100%;
-  min-height: 100%;
-  margin: 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-#root::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-/* Hide sidebar scrollbar */
 aside,
 aside * {
   scrollbar-width: none;
@@ -118,16 +217,18 @@ aside * {
 aside::-webkit-scrollbar,
 aside *::-webkit-scrollbar {
   display: none;
+  width: 0;
+  height: 0;
 }
 
-/* ================================
-   PAGE ENTRANCE ANIMATION
-================================ */
+/* ========================================
+   5. PAGE ENTRANCE ANIMATION
+======================================== */
 
 @keyframes pageEnter {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(16px);
   }
 
   to {
@@ -137,12 +238,14 @@ aside *::-webkit-scrollbar {
 }
 
 .page-animate {
+  min-width: 0;
   animation: pageEnter 450ms ease-out both;
 }
 
-/* ================================
-   CARD ENTRANCE ANIMATION
-================================ */
+/* ========================================
+   6. CARD ENTRANCE ANIMATION
+   Keep this animation on the wrapper.
+======================================== */
 
 @keyframes cardEnter {
   from {
@@ -157,9 +260,11 @@ aside *::-webkit-scrollbar {
 }
 
 .card-animate {
+  min-width: 0;
   animation: cardEnter 450ms ease-out both;
 }
 
+/* Staggered entrance */
 .delay-1 {
   animation-delay: 80ms;
 }
@@ -176,29 +281,80 @@ aside *::-webkit-scrollbar {
   animation-delay: 320ms;
 }
 
-/* ================================
-   DASHBOARD CARD HOVER
-================================ */
+/* ========================================
+   7. CARD HOVER EFFECTS
+   Hover transform is separate from entrance.
+======================================== */
 
-.hover-card {
+.hover-card,
+.dashboard-card,
+.card-interactive {
+  min-width: 0;
   transition:
     transform 250ms ease,
     box-shadow 250ms ease,
-    border-color 250ms ease;
+    border-color 250ms ease,
+    background-color 250ms ease;
 }
 
+/* Existing hover-card class */
 .hover-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 12%);
+  border-color: #fed7aa;
+}
+
+/* Dashboard cards */
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgb(15 23 42 / 12%);
+  border-color: #fdba74;
+}
+
+/* Cards inside main */
+main .card-interactive:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 28px rgb(15 23 42 / 8%);
+  box-shadow: 0 10px 24px rgb(15 23 42 / 10%);
+  border-color: #fed7aa;
 }
 
-html.dark .hover-card:hover {
+/* Dark-mode card shadows */
+html.dark .hover-card:hover,
+html.dark .dashboard-card:hover {
   box-shadow: 0 12px 28px rgb(0 0 0 / 25%);
+  border-color: #4b5563;
 }
 
-/* ================================
-   SIDEBAR ANIMATIONS
-================================ */
+html.dark main .card-interactive:hover {
+  box-shadow: 0 10px 24px rgb(0 0 0 / 20%);
+  border-color: #4b5563;
+}
+
+/* Dashboard card icon hover */
+.dashboard-card-icon {
+  transition:
+    transform 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.dashboard-card:hover .dashboard-card-icon {
+  transform: scale(1.08) rotate(-3deg);
+}
+
+/* Dashboard card value hover */
+.dashboard-card-value {
+  transition:
+    color 250ms ease,
+    transform 250ms ease;
+}
+
+.dashboard-card:hover .dashboard-card-value {
+  transform: translateX(2px);
+}
+
+/* ========================================
+   8. SIDEBAR ANIMATIONS
+======================================== */
 
 .sidebar-link {
   transition:
@@ -220,9 +376,62 @@ html.dark .hover-card:hover {
   transform: scale(1.12);
 }
 
-/* ================================
-   DROPDOWN ANIMATION
-================================ */
+/* ========================================
+   9. BUTTON HOVER EFFECTS
+======================================== */
+
+.button-animate {
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.button-animate:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 12px rgb(249 115 22 / 20%);
+}
+
+.button-animate:active {
+  transform: scale(0.97);
+}
+
+main button:not(:disabled):hover {
+  filter: brightness(0.98);
+}
+
+main button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ========================================
+   10. ICON ANIMATIONS
+======================================== */
+
+.icon-animate {
+  transition: transform 200ms ease;
+}
+
+.icon-animate:hover {
+  transform: rotate(8deg) scale(1.1);
+}
+
+.icon-button {
+  transition:
+    transform 200ms ease,
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.icon-button:hover {
+  transform: scale(1.06);
+}
+
+/* ========================================
+   11. DROPDOWN ANIMATION
+======================================== */
 
 @keyframes dropdownEnter {
   from {
@@ -238,12 +447,12 @@ html.dark .hover-card:hover {
 
 .dropdown-animate {
   transform-origin: top right;
-  animation: dropdownEnter 180ms ease-out both;
+  animation: dropdownEnter 200ms ease-out both;
 }
 
-/* ================================
-   MODAL ANIMATION
-================================ */
+/* ========================================
+   12. MODAL ANIMATION
+======================================== */
 
 @keyframes modalEnter {
   from {
@@ -275,40 +484,81 @@ html.dark .hover-card:hover {
   animation: overlayEnter 200ms ease-out both;
 }
 
-/* ================================
-   BUTTON INTERACTIONS
-================================ */
+/* ========================================
+   13. FORM FOCUS EFFECTS
+======================================== */
 
-.button-animate {
+main input,
+main select,
+main textarea {
   transition:
-    transform 180ms ease,
-    box-shadow 180ms ease,
-    background-color 180ms ease;
+    border-color 200ms ease,
+    box-shadow 200ms ease,
+    background-color 200ms ease;
 }
 
-.button-animate:hover {
-  transform: translateY(-2px);
+main input:focus,
+main select:focus,
+main textarea:focus {
+  border-color: #f97316;
+  box-shadow: 0 0 0 3px rgb(249 115 22 / 12%);
+  outline: none;
 }
 
-.button-animate:active {
-  transform: scale(0.97);
+main input::placeholder,
+main textarea::placeholder {
+  transition: color 200ms ease;
 }
 
-/* ================================
-   ICON ANIMATION
-================================ */
+/* ========================================
+   14. TABLE ROW HOVER
+======================================== */
 
-.icon-animate {
-  transition: transform 200ms ease;
+.table-row-animate {
+  transition:
+    background-color 180ms ease,
+    color 180ms ease;
 }
 
-.icon-animate:hover {
-  transform: rotate(8deg) scale(1.1);
+.table-row-animate:hover {
+  background-color: #fff7ed;
 }
 
-/* ================================
-   NOTIFICATION PULSE
-================================ */
+html.dark .table-row-animate:hover {
+  background-color: #273449;
+}
+
+main tbody tr {
+  transition: background-color 180ms ease;
+}
+
+main tbody tr:hover {
+  background-color: #fff7ed;
+}
+
+html.dark main tbody tr:hover {
+  background-color: #273449;
+}
+
+/* ========================================
+   15. IMAGE HOVER EFFECT
+======================================== */
+
+.image-hover {
+  overflow: hidden;
+}
+
+.image-hover img {
+  transition: transform 300ms ease;
+}
+
+.image-hover:hover img {
+  transform: scale(1.05);
+}
+
+/* ========================================
+   16. NOTIFICATION PULSE
+======================================== */
 
 @keyframes notificationPulse {
   0%,
@@ -325,9 +575,9 @@ html.dark .hover-card:hover {
   animation: notificationPulse 1.8s infinite;
 }
 
-/* ================================
-   LOADING SHIMMER
-================================ */
+/* ========================================
+   17. LOADING SHIMMER
+======================================== */
 
 @keyframes shimmer {
   from {
@@ -360,27 +610,31 @@ html.dark .skeleton-animate {
   background-size: 200% 100%;
 }
 
-/* ================================
-   TABLE ROW HOVER
-================================ */
+/* ========================================
+   18. LINK HOVER
+======================================== */
 
-.table-row-animate {
+main a:not(.sidebar-link) {
   transition:
-    background-color 180ms ease,
-    transform 180ms ease;
+    color 200ms ease,
+    background-color 200ms ease;
 }
 
-.table-row-animate:hover {
-  background-color: #fff7ed;
+/* ========================================
+   19. RESPONSIVE HOVER
+======================================== */
+
+@media (hover: none) {
+  .hover-card:hover,
+  .dashboard-card:hover,
+  main .card-interactive:hover {
+    transform: none;
+  }
 }
 
-html.dark .table-row-animate:hover {
-  background-color: #1f2937;
-}
-
-/* ================================
-   REDUCE MOTION ACCESSIBILITY
-================================ */
+/* ========================================
+   20. REDUCED MOTION ACCESSIBILITY
+======================================== */
 
 @media (prefers-reduced-motion: reduce) {
   *,

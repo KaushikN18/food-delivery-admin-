@@ -140,11 +140,11 @@ const filters = [
 ];
 
 const statusStyles = {
-  Pending: "bg-amber-50 text-amber-700",
-  Confirmed: "bg-blue-50 text-blue-700",
-  "Active Delivery": "bg-purple-50 text-purple-700",
-  Delivered: "bg-green-50 text-green-700",
-  Cancelled: "bg-red-50 text-red-700",
+  Pending: "bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300",
+  Confirmed: "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300",
+  "Active Delivery": "bg-purple-50 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300",
+  Delivered: "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300",
+  Cancelled: "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300",
 };
 
 const currency = (amount) =>
@@ -167,9 +167,7 @@ function getSavedOrders() {
 
     const parsedOrders = JSON.parse(savedOrders);
 
-    if (!Array.isArray(parsedOrders)) return initialOrders;
-
-    return parsedOrders;
+    return Array.isArray(parsedOrders) ? parsedOrders : initialOrders;
   } catch {
     return initialOrders;
   }
@@ -182,7 +180,6 @@ function Orders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [notice, setNotice] = useState("");
 
-  // Save orders and notify Dashboard.
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(orders));
@@ -213,9 +210,7 @@ function Orders() {
       total: orders.length,
       pending: orders.filter((order) => order.status === "Pending").length,
       confirmed: orders.filter((order) => order.status === "Confirmed").length,
-      delivery: orders.filter(
-        (order) => order.status === "Active Delivery"
-      ).length,
+      delivery: orders.filter((order) => order.status === "Active Delivery").length,
       delivered: orders.filter((order) => order.status === "Delivered").length,
       cancelled: orders.filter((order) => order.status === "Cancelled").length,
     }),
@@ -224,19 +219,19 @@ function Orders() {
 
   const updateStatus = (id, status) => {
     setOrders((current) =>
-      current.map((order) => {
-        if (order.id !== id) return order;
-
-        return {
-          ...order,
-          status,
-          deliveryPartner:
-            status === "Active Delivery" &&
-            order.deliveryPartner === "Not assigned"
-              ? "Partner pending"
-              : order.deliveryPartner,
-        };
-      })
+      current.map((order) =>
+        order.id !== id
+          ? order
+          : {
+              ...order,
+              status,
+              deliveryPartner:
+                status === "Active Delivery" &&
+                order.deliveryPartner === "Not assigned"
+                  ? "Partner pending"
+                  : order.deliveryPartner,
+            }
+      )
     );
 
     setSelectedOrder((current) =>
@@ -260,22 +255,14 @@ function Orders() {
     setOrders((current) =>
       current.map((order) =>
         order.id === id
-          ? {
-              ...order,
-              refundRequested: false,
-              payment: "Refunded",
-            }
+          ? { ...order, refundRequested: false, payment: "Refunded" }
           : order
       )
     );
 
     setSelectedOrder((current) =>
       current?.id === id
-        ? {
-            ...current,
-            refundRequested: false,
-            payment: "Refunded",
-          }
+        ? { ...current, refundRequested: false, payment: "Refunded" }
         : current
     );
 
@@ -321,72 +308,81 @@ function Orders() {
       icon: FiTruck,
       color: "bg-purple-100 text-purple-600",
     },
-  ];  return (
-    <div className="space-y-6">
+  ];
+
+  return (
+    <div className="page-animate space-y-6">
+              {/* Page Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Overview / Order Management
           </p>
 
-          <h1 className="mt-2 text-2xl font-extrabold text-gray-900 sm:text-3xl">
+          <h1 className="mt-2 text-2xl font-extrabold text-gray-900 dark:text-white sm:text-3xl">
             Order Management
           </h1>
 
-          <p className="mt-2 text-sm text-gray-500">
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
             Track, manage and update customer orders.
           </p>
         </div>
 
         <button
           onClick={resetSampleData}
-          className="flex w-fit items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+          className="button-animate flex w-fit items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-orange-300 hover:bg-orange-50 hover:text-orange-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
         >
-          <FiRefreshCw size={16} />
+          <FiRefreshCw size={16} className="transition-transform duration-500 group-hover:rotate-180" />
           Reset Sample Data
         </button>
       </div>
 
+      {/* Notification */}
       {notice && (
         <div
           role="status"
-          className="flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+          className="card-animate flex items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800 dark:border-green-900 dark:bg-green-950/40 dark:text-green-300"
         >
           <span>{notice}</span>
 
           <button
             onClick={() => setNotice("")}
             aria-label="Dismiss notification"
+            className="rounded-lg p-1 transition hover:bg-green-100 dark:hover:bg-green-900"
           >
             <FiX size={18} />
           </button>
         </div>
       )}
 
+      {/* Summary Cards */}
       <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {summaryCards.map((card) => {
+        {summaryCards.map((card, index) => {
           const Icon = card.icon;
 
           return (
             <div
               key={card.label}
-              className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
+              style={{ animationDelay: `${index * 100}ms` }}
+              className="card-animate hover-card group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
             >
               <div className="flex items-center justify-between">
                 <div
-                  className={`flex h-11 w-11 items-center justify-center rounded-xl ${card.color}`}
+                  className={`flex h-11 w-11 items-center justify-center rounded-xl transition-transform duration-300 group-hover:rotate-6 group-hover:scale-110 ${card.color}`}
                 >
                   <Icon size={22} />
                 </div>
 
-                <span className="text-xs font-medium text-gray-400">
+                <span className="text-xs font-medium text-gray-400 dark:text-gray-500">
                   Saved orders
                 </span>
               </div>
 
-              <p className="mt-4 text-sm text-gray-500">{card.label}</p>
+              <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+                {card.label}
+              </p>
 
-              <h2 className="mt-1 text-2xl font-extrabold text-gray-900">
+              <h2 className="mt-1 text-2xl font-extrabold text-gray-900 transition-colors duration-200 group-hover:text-orange-600 dark:text-white dark:group-hover:text-orange-400">
                 {card.value}
               </h2>
             </div>
@@ -394,37 +390,40 @@ function Orders() {
         })}
       </section>
 
+      {/* Order Status Summary */}
       <div className="flex flex-wrap gap-3 text-sm">
-        <span className="rounded-lg bg-green-50 px-3 py-2 font-medium text-green-700">
+        <span className="card-animate rounded-lg bg-green-50 px-3 py-2 font-medium text-green-700 transition-transform duration-200 hover:scale-105 dark:bg-green-900/30 dark:text-green-300">
           Delivered: {counts.delivered}
         </span>
 
-        <span className="rounded-lg bg-red-50 px-3 py-2 font-medium text-red-700">
+        <span className="card-animate rounded-lg bg-red-50 px-3 py-2 font-medium text-red-700 transition-transform duration-200 hover:scale-105 dark:bg-red-900/30 dark:text-red-300">
           Cancelled: {counts.cancelled}
         </span>
 
-        <span className="rounded-lg bg-amber-50 px-3 py-2 font-medium text-amber-700">
+        <span className="card-animate rounded-lg bg-amber-50 px-3 py-2 font-medium text-amber-700 transition-transform duration-200 hover:scale-105 dark:bg-amber-900/30 dark:text-amber-300">
           Refund requests:{" "}
           {orders.filter((order) => order.refundRequested).length}
         </span>
       </div>
 
-      <section className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
-        <div className="border-b border-gray-100 p-5 sm:p-6">
+      {/* Orders Table Section */}
+      <section className="card-animate overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+        <div className="border-b border-gray-100 p-5 dark:border-gray-700 sm:p-6">
           <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
             <div>
-              <h2 className="text-lg font-bold text-gray-900">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
                 All Orders
               </h2>
 
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Showing {filteredOrders.length} of {orders.length} orders
               </p>
             </div>
 
-            <div className="relative w-full lg:max-w-sm">
+            {/* Animated Search */}
+            <div className="group relative w-full lg:max-w-sm">
               <FiSearch
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-orange-500"
                 size={18}
               />
 
@@ -433,20 +432,22 @@ function Orders() {
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Search order, customer, restaurant..."
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm outline-none transition focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100"
+                className="w-full rounded-xl border border-gray-200 bg-gray-50 py-3 pl-10 pr-4 text-sm text-gray-900 outline-none transition-all duration-200 focus:border-orange-400 focus:bg-white focus:ring-2 focus:ring-orange-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:focus:bg-gray-800 dark:focus:ring-orange-900/40"
               />
             </div>
           </div>
 
+          {/* Animated Filters */}
           <div className="mt-5 flex gap-2 overflow-x-auto pb-1">
-            {filters.map((filter) => (
+            {filters.map((filter, index) => (
               <button
                 key={filter}
+                style={{ animationDelay: `${index * 40}ms` }}
                 onClick={() => setActiveFilter(filter)}
-                className={`shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+                className={`card-animate shrink-0 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 ${
                   activeFilter === filter
-                    ? "bg-orange-500 text-white"
-                    : "bg-gray-50 text-gray-600 hover:bg-orange-50 hover:text-orange-600"
+                    ? "bg-orange-500 text-white shadow-md shadow-orange-500/20"
+                    : "bg-gray-50 text-gray-600 hover:bg-orange-50 hover:text-orange-600 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-orange-400"
                 }`}
               >
                 {filter}
@@ -455,10 +456,11 @@ function Orders() {
           </div>
         </div>
 
+        {/* Responsive Table */}
         <div className="w-full overflow-x-auto">
           <table className="w-full min-w-[850px] text-left">
-            <thead className="bg-gray-50">
-              <tr className="text-xs uppercase tracking-wide text-gray-500">
+            <thead className="bg-gray-50 dark:bg-gray-900">
+              <tr className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 <th className="px-5 py-4 font-semibold">Order ID</th>
                 <th className="px-5 py-4 font-semibold">Customer</th>
                 <th className="px-5 py-4 font-semibold">Restaurant</th>
@@ -469,47 +471,48 @@ function Orders() {
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-gray-100">
-              {filteredOrders.map((order) => (
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {filteredOrders.map((order, index) => (
                 <tr
                   key={order.id}
-                  className="transition hover:bg-orange-50/30"
+                  style={{ animationDelay: `${index * 45}ms` }}
+                  className="table-row-animate card-animate transition-colors hover:bg-orange-50/50 dark:hover:bg-gray-700/60"
                 >
                   <td className="whitespace-nowrap px-5 py-4">
-                    <span className="font-bold text-gray-900">
+                    <span className="font-bold text-gray-900 dark:text-white">
                       #{order.id}
                     </span>
 
                     {order.refundRequested && (
-                      <span className="mt-1 block text-xs font-semibold text-amber-600">
+                      <span className="mt-1 block text-xs font-semibold text-amber-600 dark:text-amber-400">
                         Refund requested
                       </span>
                     )}
                   </td>
 
                   <td className="px-5 py-4">
-                    <p className="whitespace-nowrap text-sm font-semibold text-gray-800">
+                    <p className="whitespace-nowrap text-sm font-semibold text-gray-800 dark:text-gray-100">
                       {order.customer}
                     </p>
 
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
                       {formatDate(order.date)}
                     </p>
                   </td>
 
-                  <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-600">
+                  <td className="whitespace-nowrap px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
                     {order.restaurant}
                   </td>
 
-                  <td className="whitespace-nowrap px-5 py-4 text-sm font-bold text-gray-900">
+                  <td className="whitespace-nowrap px-5 py-4 text-sm font-bold text-gray-900 dark:text-white">
                     {currency(order.amount)}
                   </td>
 
                   <td className="whitespace-nowrap px-5 py-4">
                     <span
-                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold ${
+                      className={`inline-flex rounded-full px-3 py-1.5 text-xs font-semibold transition-transform duration-200 hover:scale-105 ${
                         statusStyles[order.status] ||
-                        "bg-gray-100 text-gray-700"
+                        "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
                       }`}
                     >
                       {order.status}
@@ -520,8 +523,8 @@ function Orders() {
                     <span
                       className={`text-xs font-semibold ${
                         order.payment === "Refunded"
-                          ? "text-purple-600"
-                          : "text-green-600"
+                          ? "text-purple-600 dark:text-purple-400"
+                          : "text-green-600 dark:text-green-400"
                       }`}
                     >
                       {order.payment}
@@ -535,7 +538,7 @@ function Orders() {
                         setNotice("");
                       }}
                       aria-label={`View order ${order.id}`}
-                      className="rounded-lg border border-gray-200 p-2.5 text-gray-600 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-600"
+                      className="button-animate rounded-lg border border-gray-200 p-2.5 text-gray-600 transition hover:border-orange-200 hover:bg-orange-50 hover:text-orange-600 dark:border-gray-600 dark:text-gray-300 dark:hover:border-orange-500 dark:hover:bg-gray-700 dark:hover:text-orange-400"
                     >
                       <FiEye size={17} />
                     </button>
@@ -547,15 +550,15 @@ function Orders() {
                 <tr>
                   <td colSpan="7" className="px-5 py-14 text-center">
                     <FiShoppingBag
-                      className="mx-auto text-gray-300"
+                      className="mx-auto text-gray-300 dark:text-gray-600"
                       size={36}
                     />
 
-                    <p className="mt-3 font-semibold text-gray-700">
+                    <p className="mt-3 font-semibold text-gray-700 dark:text-gray-200">
                       No orders found
                     </p>
 
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                       Try another search or status filter.
                     </p>
 
@@ -564,7 +567,7 @@ function Orders() {
                         setSearch("");
                         setActiveFilter("All Orders");
                       }}
-                      className="mt-3 text-sm font-bold text-orange-600"
+                      className="button-animate mt-3 text-sm font-bold text-orange-600 dark:text-orange-400"
                     >
                       Clear filters
                     </button>
@@ -575,9 +578,10 @@ function Orders() {
           </table>
         </div>
       </section>
-            {selectedOrder && (
+            {/* Order Details Modal */}
+      {selectedOrder && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/50 p-3 sm:p-6"
+          className="overlay-animate fixed inset-0 z-[100] flex items-center justify-center bg-gray-950/60 p-3 backdrop-blur-sm sm:p-6"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               setSelectedOrder(null);
@@ -588,15 +592,18 @@ function Orders() {
             role="dialog"
             aria-modal="true"
             aria-labelledby="order-modal-title"
-            className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+            className="modal-animate max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-gray-100 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800"
           >
-            <div className="sticky top-0 flex items-center justify-between border-b border-gray-100 bg-white p-5 sm:px-6">
+            {/* Modal Header */}
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:px-6">
               <div>
-                <p className="text-sm text-gray-500">Order details</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Order details
+                </p>
 
                 <h2
                   id="order-modal-title"
-                  className="mt-1 text-xl font-extrabold text-gray-900"
+                  className="mt-1 text-xl font-extrabold text-gray-900 dark:text-white"
                 >
                   #{selectedOrder.id}
                 </h2>
@@ -605,111 +612,126 @@ function Orders() {
               <button
                 onClick={() => setSelectedOrder(null)}
                 aria-label="Close order details"
-                className="rounded-xl bg-gray-100 p-2 text-gray-600 hover:bg-gray-200"
+                className="button-animate rounded-xl bg-gray-100 p-2 text-gray-600 transition hover:bg-red-50 hover:text-red-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-red-900/30 dark:hover:text-red-400"
               >
                 <FiX size={21} />
               </button>
             </div>
 
+            {/* Modal Content */}
             <div className="space-y-6 p-5 sm:p-6">
+              {/* Status and Date */}
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span
                   className={`rounded-full px-3 py-2 text-xs font-bold ${
                     statusStyles[selectedOrder.status] ||
-                    "bg-gray-100 text-gray-700"
+                    "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
                   }`}
                 >
                   {selectedOrder.status}
                 </span>
 
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {formatDate(selectedOrder.date)}
                 </span>
               </div>
 
+              {/* Customer and Restaurant Cards */}
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs text-gray-500">Customer</p>
+                <div className="hover-card rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Customer
+                  </p>
 
-                  <p className="mt-2 font-bold text-gray-900">
+                  <p className="mt-2 font-bold text-gray-900 dark:text-white">
                     {selectedOrder.customer}
                   </p>
 
-                  <p className="mt-2 flex items-center gap-2 text-sm text-gray-500">
-                    <FiPhone size={14} />
+                  <p className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <FiPhone size={14} className="text-orange-500" />
                     {selectedOrder.phone}
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs text-gray-500">Restaurant</p>
+                <div className="hover-card rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Restaurant
+                  </p>
 
-                  <p className="mt-2 font-bold text-gray-900">
+                  <p className="mt-2 font-bold text-gray-900 dark:text-white">
                     {selectedOrder.restaurant}
                   </p>
 
-                  <p className="mt-2 text-sm text-gray-500">
+                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     Partner: {selectedOrder.deliveryPartner}
                   </p>
                 </div>
               </div>
 
+              {/* Ordered Items */}
               <div>
-                <h3 className="font-bold text-gray-900">Ordered items</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white">
+                  Ordered items
+                </h3>
 
-                <div className="mt-3 divide-y divide-gray-100 rounded-xl border border-gray-100 px-4">
+                <div className="mt-3 divide-y divide-gray-100 rounded-xl border border-gray-100 bg-white px-4 dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-900">
                   {selectedOrder.items.map((item, index) => (
                     <div
                       key={`${item}-${index}`}
-                      className="flex items-center justify-between gap-3 py-3 text-sm"
+                      style={{ animationDelay: `${index * 60}ms` }}
+                      className="card-animate flex items-center justify-between gap-3 py-3 text-sm"
                     >
-                      <span className="text-gray-700">{item}</span>
+                      <span className="text-gray-700 dark:text-gray-200">
+                        {item}
+                      </span>
 
-                      <span className="text-gray-400">
+                      <span className="text-gray-400 dark:text-gray-500">
                         Item {index + 1}
                       </span>
                     </div>
                   ))}
 
-                  <div className="flex items-center justify-between py-4">
-                    <span className="font-bold text-gray-900">
+                  <div className="flex items-center justify-between border-t border-gray-100 py-4 dark:border-gray-700">
+                    <span className="font-bold text-gray-900 dark:text-white">
                       Total amount
                     </span>
 
-                    <span className="text-lg font-extrabold text-orange-600">
+                    <span className="text-lg font-extrabold text-orange-600 dark:text-orange-400">
                       {currency(selectedOrder.amount)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-xl bg-gray-50 p-4">
-                <p className="flex items-center gap-2 text-sm font-bold text-gray-800">
+              {/* Delivery Address */}
+              <div className="rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900">
+                <p className="flex items-center gap-2 text-sm font-bold text-gray-800 dark:text-gray-100">
                   <FiMapPin className="text-orange-500" />
                   Delivery address
                 </p>
 
-                <p className="mt-2 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
                   {selectedOrder.address}
                 </p>
               </div>
 
+              {/* Update Order Status */}
               <div>
                 <label
                   htmlFor="order-status"
-                  className="mb-2 block text-sm font-bold text-gray-800"
+                  className="mb-2 block text-sm font-bold text-gray-800 dark:text-gray-100"
                 >
                   Update order status
                 </label>
 
-                <div className="relative">
+                <div className="group relative">
                   <select
                     id="order-status"
                     value={selectedOrder.status}
                     onChange={(event) =>
                       updateStatus(selectedOrder.id, event.target.value)
                     }
-                    className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                    className="w-full appearance-none rounded-xl border border-gray-200 bg-white px-4 py-3 pr-10 text-sm text-gray-900 outline-none transition focus:border-orange-400 focus:ring-2 focus:ring-orange-100 dark:border-gray-600 dark:bg-gray-900 dark:text-white dark:focus:ring-orange-900/40"
                   >
                     {filters
                       .filter((filter) => filter !== "All Orders")
@@ -720,43 +742,46 @@ function Orders() {
                       ))}
                   </select>
 
-                  <FiChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <FiChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 transition-transform group-focus-within:rotate-180 dark:text-gray-400" />
                 </div>
               </div>
 
+              {/* Refund Request */}
               {selectedOrder.refundRequested && (
-                <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-                  <p className="font-bold text-amber-800">
+                <div className="modal-animate rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+                  <p className="font-bold text-amber-800 dark:text-amber-300">
                     Refund request pending
                   </p>
 
-                  <p className="mt-1 text-sm text-amber-700">
+                  <p className="mt-1 text-sm text-amber-700 dark:text-amber-400">
                     Review this request before marking the refund as processed.
                   </p>
 
                   <button
                     onClick={() => handleRefund(selectedOrder.id)}
-                    className="mt-3 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-amber-700"
+                    className="button-animate mt-3 rounded-lg bg-amber-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-amber-700"
                   >
                     Mark Refund Processed
                   </button>
                 </div>
               )}
 
+              {/* Refund Confirmation */}
               {selectedOrder.payment === "Refunded" && (
-                <p className="rounded-xl bg-purple-50 p-3 text-sm font-semibold text-purple-700">
+                <p className="rounded-xl border border-purple-100 bg-purple-50 p-3 text-sm font-semibold text-purple-700 dark:border-purple-900 dark:bg-purple-950/30 dark:text-purple-300">
                   This order is marked as refunded in the sample data.
                 </p>
               )}
 
-              <p className="text-xs text-gray-500">
+              <p className="text-xs leading-5 text-gray-500 dark:text-gray-400">
                 Demo mode: order changes are saved in this browser only.
                 Refund processing does not initiate a real payment.
               </p>
 
+              {/* Done Button */}
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="w-full rounded-xl bg-orange-500 px-4 py-3 font-bold text-white transition hover:bg-orange-600"
+                className="button-animate w-full rounded-xl bg-orange-500 px-4 py-3 font-bold text-white shadow-sm transition hover:bg-orange-600 hover:shadow-md"
               >
                 Done
               </button>
@@ -764,7 +789,7 @@ function Orders() {
           </div>
         </div>
       )}
-          </div>
+    </div>
   );
 }
 

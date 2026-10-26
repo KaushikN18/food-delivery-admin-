@@ -1,3 +1,4 @@
+
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -154,12 +155,9 @@ function normalizeStatus(status) {
   }
 
   if (
-    [
-      "active delivery",
-      "out for delivery",
-      "in transit",
-      "picked up",
-    ].includes(value)
+    ["active delivery", "out for delivery", "in transit", "picked up"].includes(
+      value
+    )
   ) {
     return "delivery";
   }
@@ -225,16 +223,12 @@ function Dashboard() {
 
   const orderStats = useMemo(() => {
     const countStatus = (status) =>
-      orders.filter(
-        (order) => normalizeStatus(order.status) === status
-      ).length;
+      orders.filter((order) => normalizeStatus(order.status) === status).length;
 
     const revenue = orders
       .filter(
         (order) =>
-          !["cancelled", "refunded"].includes(
-            normalizeStatus(order.status)
-          )
+          !["cancelled", "refunded"].includes(normalizeStatus(order.status))
       )
       .reduce(
         (total, order) =>
@@ -270,7 +264,8 @@ function Dashboard() {
 
     return result.slice(0, 6);
   }, [orders, orderFilter]);
-    const stats = [
+
+  const stats = [
     {
       title: "Total Orders",
       value: orderStats.total.toLocaleString("en-IN"),
@@ -341,8 +336,50 @@ function Dashboard() {
     setLastUpdated(new Date());
   };
 
+  const overviewItems = [
+    {
+      label: "Total Orders",
+      value: orderStats.total,
+      icon: FiShoppingBag,
+      color: "bg-orange-100 text-orange-600",
+    },
+    {
+      label: "Pending",
+      value: orderStats.pending,
+      icon: FiClock,
+      color: "bg-yellow-100 text-yellow-700",
+    },
+    {
+      label: "Confirmed / Preparing",
+      value: orderStats.preparing,
+      icon: FiCoffee,
+      color: "bg-blue-100 text-blue-600",
+    },
+    {
+      label: "Out for Delivery",
+      value: orderStats.delivery,
+      icon: FiTruck,
+      color: "bg-purple-100 text-purple-600",
+    },
+    {
+      label: "Delivered",
+      value: orderStats.delivered,
+      icon: FiCheckCircle,
+      color: "bg-green-100 text-green-600",
+    },
+  ];
+
+  const orderFilters = [
+    { label: "All", value: "All" },
+    { label: "Pending", value: "pending" },
+    { label: "Confirmed / Preparing", value: "preparing" },
+    { label: "Active Delivery", value: "delivery" },
+    { label: "Delivered", value: "delivered" },
+    { label: "Cancelled", value: "cancelled" },
+  ];
+
   return (
-    <div className="page-animate space-y-7">
+    <div className="page-animate min-w-0 space-y-7">
       {/* Dashboard Header */}
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
@@ -365,16 +402,18 @@ function Dashboard() {
 
         <div className="flex flex-wrap gap-3">
           <button
+            type="button"
             onClick={refreshDashboard}
-            className="button-animate inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+            className="button-animate inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm font-bold text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
           >
             <FiRefreshCw size={17} />
             Refresh
           </button>
 
           <button
+            type="button"
             onClick={() => window.print()}
-            className="button-animate w-fit rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-100 transition hover:bg-orange-600 dark:shadow-none"
+            className="button-animate w-fit rounded-xl bg-orange-500 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-orange-100 dark:shadow-none"
           >
             Generate Report
           </button>
@@ -393,36 +432,38 @@ function Dashboard() {
             <div
               key={stat.title}
               style={{ animationDelay: `${index * 90}ms` }}
-              className="card-animate hover-card rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+              className="card-animate"
             >
-              <div className="flex items-center justify-between">
-                <div
-                  className={`flex h-12 w-12 items-center justify-center rounded-xl ${stat.color}`}
-                >
-                  <Icon size={23} />
+              <div className="dashboard-card group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                <div className="flex items-center justify-between">
+                  <div
+                    className={`dashboard-card-icon flex h-12 w-12 items-center justify-center rounded-xl ${stat.color}`}
+                  >
+                    <Icon size={23} />
+                  </div>
+
+                  <span
+                    className={`flex items-center gap-1 text-xs font-bold ${
+                      stat.positive ? "text-green-600" : "text-red-500"
+                    }`}
+                  >
+                    <ChangeIcon size={15} />
+                    {stat.change}
+                  </span>
                 </div>
 
-                <span
-                  className={`flex items-center gap-1 text-xs font-bold ${
-                    stat.positive ? "text-green-600" : "text-red-500"
-                  }`}
-                >
-                  <ChangeIcon size={15} />
-                  {stat.change}
-                </span>
+                <p className="mt-5 text-sm font-medium text-gray-500 dark:text-gray-400">
+                  {stat.title}
+                </p>
+
+                <h2 className="dashboard-card-value mt-1 text-2xl font-extrabold text-gray-900 dark:text-white">
+                  {stat.value}
+                </h2>
+
+                <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+                  Based on saved demo orders
+                </p>
               </div>
-
-              <p className="mt-5 text-sm font-medium text-gray-500 dark:text-gray-400">
-                {stat.title}
-              </p>
-
-              <h2 className="mt-1 text-2xl font-extrabold text-gray-900 dark:text-white">
-                {stat.value}
-              </h2>
-
-              <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
-                Based on saved demo orders
-              </p>
             </div>
           );
         })}
@@ -450,61 +491,32 @@ function Dashboard() {
         </div>
 
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
-          {[
-            {
-              label: "Total Orders",
-              value: orderStats.total,
-              icon: FiShoppingBag,
-              color: "bg-orange-100 text-orange-600",
-            },
-            {
-              label: "Pending",
-              value: orderStats.pending,
-              icon: FiClock,
-              color: "bg-yellow-100 text-yellow-700",
-            },
-            {
-              label: "Confirmed / Preparing",
-              value: orderStats.preparing,
-              icon: FiCoffee,
-              color: "bg-blue-100 text-blue-600",
-            },
-            {
-              label: "Out for Delivery",
-              value: orderStats.delivery,
-              icon: FiTruck,
-              color: "bg-purple-100 text-purple-600",
-            },
-            {
-              label: "Delivered",
-              value: orderStats.delivered,
-              icon: FiCheckCircle,
-              color: "bg-green-100 text-green-600",
-            },
-          ].map((item, index) => {
+          {overviewItems.map((item, index) => {
             const Icon = item.icon;
 
             return (
               <div
                 key={item.label}
                 style={{ animationDelay: `${index * 70}ms` }}
-                className="card-animate hover-card rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-5"
+                className="card-animate"
               >
-                <div className="flex items-center justify-between gap-2">
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.color}`}
-                  >
-                    <Icon size={20} />
+                <div className="dashboard-card h-full rounded-2xl border border-gray-100 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800 sm:p-5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div
+                      className={`dashboard-card-icon flex h-10 w-10 items-center justify-center rounded-xl ${item.color}`}
+                    >
+                      <Icon size={20} />
+                    </div>
+
+                    <span className="dashboard-card-value text-2xl font-extrabold text-gray-900 dark:text-white">
+                      {item.value}
+                    </span>
                   </div>
 
-                  <span className="text-2xl font-extrabold text-gray-900 dark:text-white">
-                    {item.value}
-                  </span>
+                  <p className="mt-4 text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-sm">
+                    {item.label}
+                  </p>
                 </div>
-
-                <p className="mt-4 text-xs font-medium text-gray-500 dark:text-gray-400 sm:text-sm">
-                  {item.label}
-                </p>
               </div>
             );
           })}
@@ -532,36 +544,39 @@ function Dashboard() {
                 key={action.path}
                 to={action.path}
                 style={{ animationDelay: `${index * 80}ms` }}
-                className="card-animate hover-card group flex items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800"
+                className="card-animate block"
               >
-                <div
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${action.color} transition-transform duration-200 group-hover:scale-110`}
-                >
-                  <Icon size={22} />
+                <div className="dashboard-card group flex h-full items-center gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+                  <div
+                    className={`dashboard-card-icon flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${action.color}`}
+                  >
+                    <Icon size={22} />
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-bold text-gray-800 dark:text-white">
+                      {action.title}
+                    </h3>
+
+                    <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
+                      {action.description}
+                    </p>
+                  </div>
+
+                  <FiArrowUpRight
+                    className="shrink-0 text-gray-400 transition duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-orange-500"
+                    size={18}
+                  />
                 </div>
-
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-sm font-bold text-gray-800 dark:text-white">
-                    {action.title}
-                  </h3>
-
-                  <p className="mt-1 text-xs leading-5 text-gray-500 dark:text-gray-400">
-                    {action.description}
-                  </p>
-                </div>
-
-                <FiArrowUpRight
-                  className="shrink-0 text-gray-400 transition duration-200 group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-orange-500"
-                  size={18}
-                />
               </Link>
             );
           })}
         </div>
       </section>
-            {/* Revenue Analytics and Peak Hours */}
+
+      {/* Revenue Analytics and Peak Hours */}
       <section className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        <div className="hover-card min-w-0 rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6 xl:col-span-2">
+        <div className="dashboard-card min-w-0 rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6 xl:col-span-2">
           <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -637,7 +652,7 @@ function Dashboard() {
                   stroke="#f97316"
                   strokeWidth={3}
                   fill="url(#revenueFill)"
-                  isAnimationActive={true}
+                  isAnimationActive
                   animationDuration={1200}
                 />
               </AreaChart>
@@ -645,7 +660,7 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="hover-card min-w-0 rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+        <div className="dashboard-card min-w-0 rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             Peak Hours
           </h2>
@@ -678,7 +693,7 @@ function Dashboard() {
                   dataKey="orders"
                   fill="#fb923c"
                   radius={[5, 5, 0, 0]}
-                  isAnimationActive={true}
+                  isAnimationActive
                   animationDuration={1000}
                 />
               </BarChart>
@@ -688,7 +703,7 @@ function Dashboard() {
       </section>
 
       {/* Recent Orders */}
-      <section className="hover-card overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <section className="dashboard-card overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <div className="flex flex-col justify-between gap-3 p-5 sm:flex-row sm:items-center sm:p-6">
           <div>
             <h2 className="text-lg font-extrabold text-gray-900 dark:text-white">
@@ -710,18 +725,12 @@ function Dashboard() {
         </div>
 
         <div className="flex flex-wrap gap-2 px-5 pb-4 sm:px-6">
-          {[
-            { label: "All", value: "All" },
-            { label: "Pending", value: "pending" },
-            { label: "Confirmed / Preparing", value: "preparing" },
-            { label: "Active Delivery", value: "delivery" },
-            { label: "Delivered", value: "delivered" },
-            { label: "Cancelled", value: "cancelled" },
-          ].map((filter) => (
+          {orderFilters.map((filter) => (
             <button
               key={filter.value}
+              type="button"
               onClick={() => setOrderFilter(filter.value)}
-              className={`rounded-lg px-3 py-2 text-xs font-semibold transition-all duration-200 ${
+              className={`button-animate rounded-lg px-3 py-2 text-xs font-semibold ${
                 orderFilter === filter.value
                   ? "bg-orange-500 text-white shadow-md shadow-orange-500/20"
                   : "bg-gray-100 text-gray-600 hover:bg-orange-50 hover:text-orange-600 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
@@ -736,9 +745,7 @@ function Dashboard() {
           <table className="w-full min-w-[720px] text-left">
             <thead className="bg-gray-50 dark:bg-gray-700/50">
               <tr className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-300">
-                <th className="px-5 py-4 font-semibold sm:px-6">
-                  Order ID
-                </th>
+                <th className="px-5 py-4 font-semibold sm:px-6">Order ID</th>
                 <th className="px-5 py-4 font-semibold">Customer</th>
                 <th className="px-5 py-4 font-semibold">Restaurant</th>
                 <th className="px-5 py-4 font-semibold">Amount</th>
@@ -752,7 +759,7 @@ function Dashboard() {
                 <tr
                   key={order.id}
                   style={{ animationDelay: `${index * 50}ms` }}
-                  className="card-animate transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                  className="table-row-animate card-animate"
                 >
                   <td className="px-5 py-4 sm:px-6">
                     <Link
@@ -796,14 +803,13 @@ function Dashboard() {
               {filteredOrders.length === 0 && (
                 <tr>
                   <td
-                    colSpan="6"
+                    colSpan={6}
                     className="px-5 py-12 text-center text-sm text-gray-500 dark:text-gray-400"
                   >
                     <FiPackage
                       className="mx-auto mb-3 text-gray-300"
                       size={28}
                     />
-
                     No orders found for this status.
                   </td>
                 </tr>
@@ -825,8 +831,9 @@ function Dashboard() {
           </Link>
         </div>
       </section>
-            {/* Recent Activities */}
-      <section className="hover-card rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6">
+
+      {/* Recent Activities */}
+      <section className="dashboard-card rounded-2xl border border-gray-100 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 sm:p-6">
         <div className="mb-6 flex items-center justify-between">
           <div>
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -857,7 +864,7 @@ function Dashboard() {
                 className="card-animate flex items-center gap-4 py-4 first:pt-0 last:pb-0"
               >
                 <div
-                  className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${activity.color}`}
+                  className={`dashboard-card-icon flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${activity.color}`}
                 >
                   <Icon size={20} />
                 </div>
@@ -883,7 +890,7 @@ function Dashboard() {
 
       {/* Attention Required */}
       {(orderStats.pending > 0 || orderStats.cancelled > 0) && (
-        <section className="page-animate rounded-2xl border border-orange-100 bg-orange-50 p-5 dark:border-orange-900/40 dark:bg-orange-950/30">
+        <section className="card-animate rounded-2xl border border-orange-100 bg-orange-50 p-5 dark:border-orange-900/40 dark:bg-orange-950/30">
           <div className="flex items-start gap-3">
             <div className="rounded-xl bg-white p-3 text-orange-600 dark:bg-gray-800">
               <FiAlertCircle size={22} />
